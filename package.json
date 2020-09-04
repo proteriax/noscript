@@ -1,0 +1,29 @@
+{
+  "name": "noscript",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/hackademix/noscript.git",
+  "author": "proteriax <8125011+proteriax@users.noreply.github.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/fs-extra": "^9.0.1",
+    "@types/lodash": "^4.14.161",
+    "@types/node-fetch": "^2.5.7",
+    "avec-ts": "^1.0.2",
+    "fs-extra": "^9.0.1",
+    "lodash": "^4.17.20",
+    "node-fetch": "^2.6.0",
+    "typescript": "^4.0.2"
+  },
+  "prettier": {
+    "arrowParens": "avoid",
+    "tabWidth": 2,
+    "printWidth": 90,
+    "semi": false,
+    "singleQuote": false,
+    "trailingComma": "es5"
+  },
+  "dependencies": {
+    "tiny-invariant": "^1.1.0"
+  }
+}

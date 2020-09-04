@@ -366,6 +366,7 @@ onupdatestart
 onupdate
 onupdateend
 onaddsourcebuffer
+onremovesourcebufferonabort
 onremovesourcebuffer
 onZoomChangeUsingMouseWheel
 onappinstalled

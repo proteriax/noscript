@@ -1,11 +1,22 @@
 
 /* @import url("chrome://browser/content/extension.css"); */
 body {
-  background: #eee url("/img/noscript-options.png") no-repeat fixed top right;
+  background: #fcfcfc url("/img/noscript-options.png") no-repeat fixed top right;
   background-size: 8em;
   padding: 0 2em 0 0;
-  margin: 0.5em 0.5em 0.5em 0.5em;
+  margin: 0.5em auto;
+  max-width: 900px;
 }
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: #2f3136;
+    color: #fff;
+  }
+  button {
+    background-color: #2f3136;
+  }
+}
+
 .mobile body {
   background-size: 4em;
   padding-right: 0;
@@ -34,6 +45,11 @@ body {
   margin: 0 0 0.5em;
   display: block;
   text-align: right;
+}
+@media (prefers-color-scheme: dark) {
+  #header h1, #version {
+    color: #37B;
+  }
 }
 
 .buttons {
@@ -157,8 +173,14 @@ button.add {
 }
 
 .flextabs__content, .flextabs__toggle[aria-expanded="true"] {
-  background-color: rgba(200, 200, 200, .5) !important;
+  background-color: rgba(225,225,225);
   border: 0 solid #888;
+}
+
+@media (prefers-color-scheme: dark) {
+  .flextabs__content, .flextabs__toggle[aria-expanded="true"] {
+    background-color: rgba(100,100,100);
+  }
 }
 
 .flextabs__toggle {
@@ -168,7 +190,11 @@ button.add {
   background: #ccc;
   outline-width: 1px 0 0 0 !important;
 }
-
+@media (prefers-color-scheme: dark) {
+  .flextabs__toggle {
+    background: #333;
+  }
+}
 
 
 .flextabs__content {

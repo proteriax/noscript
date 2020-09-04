@@ -1197,3 +1197,4 @@ XSS.InjectionChecker = (async () => {
   };
   return InjectionChecker;
 })();
+

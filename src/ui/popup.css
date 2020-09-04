@@ -1,6 +1,12 @@
 body {
   background: white;
 }
+@media (prefers-color-scheme: dark) {
+  body {
+    background: #2f3136;
+    color: #fff;
+  }
+}
 
 #top {
   font-size: 1em;

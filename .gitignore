@@ -1,3 +1,4 @@
+node_modules
 # files (especially tests) to be ignored until a subsequent release for security
 **/embargoed/**
 # build artifacts

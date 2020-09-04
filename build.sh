@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 BASE="$PWD"
 SRC="$BASE/src"
 BUILD="$BASE/build"

@@ -1,9 +1,22 @@
 
 body {
-  font-family: sans-serif;
+  font-family: system-ui, sans-serif;
   font: -moz-use-system-font;
-  font-size: 12px;
+  font-size: 14px;
   min-width: 600px;
+
+  --text-color: #000;
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    --text-color: #fff;
+  }
+}
+
+button {
+  font-family: inherit;
+  color: var(--text-color);
 }
 
 html.mobile > body {
@@ -165,7 +178,6 @@ input[type="checkbox"] {
 }
 .sites {
   border: 0;
-  background: white;
   border-collapse: collapse;
   border-spacing: 0;
   width: 100%;
@@ -186,6 +198,13 @@ html:not(.mobile) .sites > tr.site:focus-within {
 }
 .sites > tr:nth-child(even) {background: #fff}
 .sites > tr:nth-child(odd) {background: #eee}
+@media (prefers-color-scheme: dark) {
+  html:not(.mobile) .sites > tr.site:focus-within {
+    background: #333;
+  }
+  .sites > tr:nth-child(even) {background: #111}
+  .sites > tr:nth-child(odd) {background: #222}
+}
 
 .site .url {
     padding: 0 0 0 0.5em;
@@ -213,7 +232,7 @@ html:not(.mobile) .sites > tr.site:focus-within {
 .site .url[data-key="secure"] .domain,
 .site .url[data-key="secure"] .sub,
 .site .url[data-key="full"] span {
-  color: black;
+  color: var(--text-color);
 }
 
 .site .url[data-key="full"] span,
@@ -222,7 +241,7 @@ html:not(.mobile) .sites > tr.site:focus-within {
 }
 
 .site .url .domain {
-  font-weight: bold;
+  font-weight: 600;
 }
 
 input.https-only {
@@ -300,7 +319,6 @@ span.preset {
 
 #presets-sizer span.preset {
   display: block;
-
 }
 
 .presets input.preset:checked, #presets input.preset, #presets-sizer input.preset {
@@ -309,6 +327,11 @@ span.preset {
   min-width: 9.38em;
   background-color: #ddd;
   border-radius: 0.5em;
+}
+@media (prefers-color-scheme: dark) {
+  .presets input.preset:checked, #presets input.preset, #presets-sizer input.preset {
+    background-color: #444;
+  }
 }
 
 .presets input.preset:focus {
@@ -321,12 +344,10 @@ span.preset {
 }
 .presets label.preset {
   padding: 0;
-  letter-spacing: -0.06em;
   width: 0em;
   overflow: hidden;
   display: none;
   text-transform: uppercase;
-  color: #000;
   opacity: .6;
   position: absolute;
   left: 0em;
@@ -359,6 +380,11 @@ input:focus, button:focus, input:focus, a:focus {
     drop-shadow(-3px 3px 3px var(--focus-color))
     drop-shadow(3px -3px 3px var(--focus-color))
     drop-shadow(-3px -3px 3px var(--focus-color));
+}
+@media (prefers-color-scheme: dark) {
+  input:focus, button:focus, input:focus, a:focus {
+    --focus-color: rgba(34, 145, 255, 0.5333333333);
+  }
 }
 
 input.preset:disabled {
@@ -422,6 +448,11 @@ input.preset:checked ~ input.temp {
 #presets input.preset:not(:checked) {
   background-color: #ccc;
 }
+@media (prefers-color-scheme: dark) {
+  #presets input.preset:not(:checked) {
+    background-color: #333;
+  }
+}
 #presets input.preset {
   box-shadow: 0 1px 1px #888;
 }
@@ -429,6 +460,11 @@ input.preset:checked ~ input.temp {
   background-color: #eee;
   border-radius: 0.5em 0.5em 0 0;
   margin: 0 0.06em 0.06em 0.06em;
+}
+@media (prefers-color-scheme: dark) {
+  .customizing input.preset:checked, #presets input.preset:checked, .customizer fieldset {
+    background-color: #555;
+  }
 }
 .customizing input.preset:checked, #presets input.preset, #presets input.preset:checked  {
   margin: 0 1em -0.2em 1em;
@@ -439,13 +475,6 @@ input.preset:checked ~ input.temp {
   padding-left: 3em;
 }
 
-.customizing, .customizer {
-  background-color: #ccc !important;
-}
-
-#presets .customizing, #presets .customizer {
-  background-color: #ddd !important;
-}
 .customizer fieldset {
   box-shadow: 1px 1px 1px #888;
 }
