@@ -12,8 +12,11 @@
     "strictFunctionTypes": true,
     "strictNullChecks": true,
     "stripInternal": true,
-    "target": "es2019"
+    "target": "es2019",
+    "rootDir": "src",
+    "outDir": "chromium"
   },
+  "exclude": ["tools", "html5_events"],
   "ts-node": {
     "transpileOnly": true
   }

@@ -3,7 +3,7 @@ a.__NoScript_PlaceHolder__ {
   color: #048;
   text-decoration: none;
   text-align: center;
-  background: rgba(255,250,200, .7) no-repeat center;
+  background: rgba(255, 250, 200, 0.7) no-repeat center;
   background-size: contain;
   visibility: visible !important;
   cursor: pointer;
@@ -21,7 +21,7 @@ a.__NoScript_PlaceHolder__:hover {
 }
 
 a.__NoScript_PlaceHolder__.__ns__closing {
-  transition: .4s all;
+  transition: 0.4s all;
   opacity: 0;
   transform: scale(0, 0);
 }
@@ -53,9 +53,9 @@ a.__NoScript_PlaceHolder__ > span {
   padding: 0 4px;
   margin: 0;
   background: none;
-  transition: .2s all;
+  transition: 0.2s all;
 }
-.__NoScript_PlaceHolder__  button:hover {
+.__NoScript_PlaceHolder__ button:hover {
   color: white;
   text-shadow: -2px 0 2px red, 2px 0 2px red;
 }
@@ -63,7 +63,7 @@ a.__NoScript_PlaceHolder__ > span {
 .__NoScript_PlaceHolder__ > span > span {
   display: block;
   font-size: 18px;
-  background: rgba(255, 250, 200, .5);
+  background: rgba(255, 250, 200, 0.5);
   border-radius: 8px;
   padding: 8px;
   margin: 0;
@@ -72,7 +72,7 @@ a.__NoScript_PlaceHolder__ > span {
   word-break: break-all;
 }
 .__NoScript_PlaceHolder__:hover > span > span {
-  background: rgba(255, 250, 200, .8)
+  background: rgba(255, 250, 200, 0.8);
 }
 a.__NoScript_PlaceHolder__.__ns__document {
   position: fixed !important;

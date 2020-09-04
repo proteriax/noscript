@@ -19,7 +19,6 @@ body {
   -moz-user-select: none;
 }
 
-
 #top .icon {
   appearance: none !important;
   -webkit-appearance: none !important;
@@ -59,10 +58,10 @@ body {
 }
 
 .mobile #top {
- height: 3.5em;
+  height: 3.5em;
 }
 .mobile #top .icon {
-  padding: .5em .5em;
+  padding: 0.5em 0.5em;
   background-size: 80%;
 }
 
@@ -72,9 +71,7 @@ body {
   cursor: pointer;
 }
 
-
-
-#top > .hider.open  ~ .spacer {
+#top > .hider.open ~ .spacer {
   display: none;
 }
 
@@ -84,15 +81,13 @@ body {
   border-radius: 1em 1em 0 0;
   display: none;
   position: relative;
-  margin: .25em 1.5em;
+  margin: 0.25em 1.5em;
   padding: 0;
 
   height: 2em;
   overflow: hidden;
-  opacity: .5;
+  opacity: 0.5;
 }
-
-
 
 .hider.open {
   display: flex;
@@ -110,7 +105,6 @@ body {
   overflow: hidden;
   width: 2em;
 }
-
 
 #top .hider .reveal {
   display: block;
@@ -132,8 +126,8 @@ body {
 .hider-label {
   position: absolute;
   z-index: 100;
-  top: .5em;
-  right: .5em;
+  top: 0.5em;
+  right: 0.5em;
   color: #222;
   text-align: right;
   vertical-align: middle;
@@ -151,30 +145,32 @@ body {
   color: black;
   background: transparent;
   padding: 0;
-  border-radius: .2em;
+  border-radius: 0.2em;
   border: none;
   position: absolute;
-  left: .2em;
+  left: 0.2em;
   top: 0;
   font-size: 1.5em;
   font-weight: bold;
   z-index: 100;
   vertical-align: middle;
-  padding: .2em;
+  padding: 0.2em;
 }
 
-.hider-close:hover, .reveal:hover {
+.hider-close:hover,
+.reveal:hover {
   color: white !important;
   text-shadow: -2px 0 2px red, 2px 0 2px red;
 }
 
 .hider > .icon {
-  opacity: .7;
-  margin: 0 .25em;
+  opacity: 0.7;
+  margin: 0 0.25em;
   padding: 0;
 }
 
-#top > .icon:hover, #top > #top > .icon:active {
+#top > .icon:hover,
+#top > #top > .icon:active {
   outline: 0;
   transform: scale(1.2);
 }
@@ -183,7 +179,6 @@ body {
   text-indent: -500em;
   color: transparent;
 }
-
 
 #top #revoke-temp {
   background-image: url(/img/ui-revoke-temp64.png);
@@ -229,22 +224,22 @@ body {
   margin: 0.5em;
   display: flex;
   justify-content: space-around;
-
 }
 #buttons button {
   flex-grow: 1;
-  margin: .5em 2em;
+  margin: 0.5em 2em;
 }
 
-.disabled .toggle.icon, .toggle.icon:disabled {
-  opacity: .2;
+.disabled .toggle.icon,
+.toggle.icon:disabled {
+  opacity: 0.2;
   pointer-events: none;
 }
 
 #message {
   height: auto;
-  margin: .5em;
-  padding: .8em 0 0 2.5em;
+  margin: 0.5em;
+  padding: 0.8em 0 0 2.5em;
   background-size: 2em;
   background-position: left top;
   background-repeat: no-repeat;
@@ -265,7 +260,8 @@ body {
   background-image: url("/img/error64.png");
 }
 
-#incognito-ui-chooser, html.incognito #message:not(.hidden) ~ #incognito-ui-chooser {
+#incognito-ui-chooser,
+html.incognito #message:not(.hidden) ~ #incognito-ui-chooser {
   display: none;
 }
 html.incognito #incognito-ui-chooser {

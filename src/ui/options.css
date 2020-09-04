@@ -1,4 +1,3 @@
-
 /* @import url("chrome://browser/content/extension.css"); */
 body {
   background: #fcfcfc url("/img/noscript-options.png") no-repeat fixed top right;
@@ -22,7 +21,6 @@ body {
   padding-right: 0;
 }
 
-
 #header {
   display: flex;
   flex-flow: column;
@@ -32,7 +30,7 @@ body {
 }
 #header h1 {
   color: #048;
-  text-shadow: 0.06em 0.06em 0.06em rgba(0,0,0,.5);
+  text-shadow: 0.06em 0.06em 0.06em rgba(0, 0, 0, 0.5);
   font-size: 2em;
   padding: 0;
   margin: 0;
@@ -47,8 +45,9 @@ body {
   text-align: right;
 }
 @media (prefers-color-scheme: dark) {
-  #header h1, #version {
-    color: #37B;
+  #header h1,
+  #version {
+    color: #37b;
   }
 }
 
@@ -68,19 +67,20 @@ body {
   font-size: 1em;
 }
 
-#sect-general label, #sect-general button, #sect-general span {
+#sect-general label,
+#sect-general button,
+#sect-general span {
   white-space: nowrap;
 }
 
-section form, section fieldset {
-  margin: .5em 0;
+section form,
+section fieldset {
+  margin: 0.5em 0;
 }
 
 fieldset:disabled {
-  opacity: .5;
+  opacity: 0.5;
 }
-
-
 
 .sect-sites form {
   display: flex;
@@ -98,11 +98,12 @@ fieldset:disabled {
 
 #policy {
   display: block;
-  margin-top: .5em;
+  margin-top: 0.5em;
   min-height: 20em;
   width: 90%;
 }
-.hide, div.debug {
+.hide,
+div.debug {
   display: none;
 }
 
@@ -123,7 +124,8 @@ body.debug div.debug {
   font-weight: bold;
 }
 
-input, button {
+input,
+button {
   font-size: 1em;
 }
 
@@ -155,7 +157,6 @@ button.add {
   display: none;
 }
 
-
 .flextabs__tab {
   /* shift all tabs to appear before content */
   order: -1;
@@ -172,14 +173,16 @@ button.add {
   display: block;
 }
 
-.flextabs__content, .flextabs__toggle[aria-expanded="true"] {
-  background-color: rgba(225,225,225);
+.flextabs__content,
+.flextabs__toggle[aria-expanded="true"] {
+  background-color: rgba(225, 225, 225);
   border: 0 solid #888;
 }
 
 @media (prefers-color-scheme: dark) {
-  .flextabs__content, .flextabs__toggle[aria-expanded="true"] {
-    background-color: rgba(100,100,100);
+  .flextabs__content,
+  .flextabs__toggle[aria-expanded="true"] {
+    background-color: rgba(100, 100, 100);
   }
 }
 
@@ -196,16 +199,15 @@ button.add {
   }
 }
 
-
 .flextabs__content {
   border-width: 0 1px 1px 0;
-  border-radius: 0 .5em 0 0;
-  padding: .5em;
+  border-radius: 0 0.5em 0 0;
+  padding: 0.5em;
 }
 
 .flextabs__toggle {
-  border-radius: .2em .2em 0 0;
-  padding: .2em .4em;
+  border-radius: 0.2em 0.2em 0 0;
+  padding: 0.2em 0.4em;
 }
 
 #xss-options {
