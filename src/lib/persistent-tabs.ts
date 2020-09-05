@@ -1,19 +1,19 @@
 export {}
 
 if (typeof flextabs === "function") {
-  for (let tabs of document.querySelectorAll(".flextabs")) {
+  for (const tabs of document.querySelectorAll(".flextabs")) {
     flextabs(tabs).init()
-    let { id } = tabs
+    const { id } = tabs
     if (!id) continue
-    let rx = new RegExp(`(?:^|[#;])tab-${id}=(\\d+)(?:;|$)`)
-    let current = location.hash.match(rx)
+    const rx = new RegExp(`(?:^|[#;])tab-${id}=(\\d+)(?:;|$)`)
+    const current = location.hash.match(rx)
     console.log(`persisted %o`, current)
-    let toggles = Array.from(tabs.querySelectorAll(".flextabs__toggle"))
-    let currentToggle = toggles[(current && parseInt(current[1])) || 0]
+    const toggles = Array.from(tabs.querySelectorAll(".flextabs__toggle"))
+    const currentToggle = toggles[(current && parseInt(current[1])) || 0]
     if (currentToggle) currentToggle.click()
-    for (let toggle of toggles) {
+    for (const toggle of toggles) {
       toggle.addEventListener("click", e => {
-        let currentIdx = toggles.indexOf(toggle)
+        const currentIdx = toggles.indexOf(toggle)
         location.hash = location.hash
           .split(";")
           .filter(p => !rx.test(p))

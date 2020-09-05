@@ -1,4 +1,5 @@
 export {}
+
 class Timing {
   constructor(workSlot = 10, longTime = 20000, pauseTime = 20) {
     this.workSlot = workSlot

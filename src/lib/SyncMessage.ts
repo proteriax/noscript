@@ -1,24 +1,24 @@
 export {}
 
-let ENDPOINT_ORIGIN = "https://255.255.255.255"
-let ENDPOINT_PREFIX = `${ENDPOINT_ORIGIN}/${browser.extension.getURL("")}?`
-let MOZILLA = "mozSystem" in XMLHttpRequest.prototype
+const ENDPOINT_ORIGIN = "https://255.255.255.255"
+const ENDPOINT_PREFIX = `${ENDPOINT_ORIGIN}/${browser.extension.getURL("")}?`
+const MOZILLA = "mozSystem" in XMLHttpRequest.prototype
 
 if (browser.webRequest) {
   if (typeof browser.runtime.onSyncMessage !== "object") {
     // Background Script side
 
-    let pending = new Map()
+    const pending = new Map()
     if (MOZILLA) {
       // we don't care this is async, as long as it get called before the
       // sync XHR (we are not interested in the response on the content side)
       browser.runtime.onMessage.addListener((m, sender) => {
-        let wrapper = m.__syncMessage__
+        const wrapper = m.__syncMessage__
         if (!wrapper) return
-        let { id } = wrapper
+        const { id } = wrapper
         pending.set(id, wrapper)
         let result
-        let unsuspend = result => {
+        const unsuspend = result => {
           pending.delete(id)
           if (wrapper.unsuspend) {
             wrapper.unsuspend()
@@ -43,32 +43,32 @@ if (browser.webRequest) {
       })
     }
 
-    let tabUrlCache = new Map()
-    let asyncResults = new Map()
+    const tabUrlCache = new Map()
+    const asyncResults = new Map()
     let tabRemovalListener = null
-    let CANCEL = { cancel: true }
-    let { TAB_ID_NONE } = browser.tabs
+    const CANCEL = { cancel: true }
+    const { TAB_ID_NONE } = browser.tabs
 
-    let onBeforeRequest = request => {
+    const onBeforeRequest = request => {
       try {
-        let { url, tabId } = request
-        let params = new URLSearchParams(url.split("?")[1])
-        let msgId = params.get("id")
+        const { url, tabId } = request
+        const params = new URLSearchParams(url.split("?")[1])
+        const msgId = params.get("id")
         if (asyncResults.has(msgId)) {
           return asyncRet(msgId)
         }
-        let msg = params.get("msg")
+        const msg = params.get("msg")
 
         if (MOZILLA || tabId === TAB_ID_NONE) {
           // this shoud be a mozilla suspension request
           return params.get("suspend")
             ? new Promise(resolve => {
                 if (pending.has(msgId)) {
-                  let wrapper = pending.get(msgId)
+                  const wrapper = pending.get(msgId)
                   if (!wrapper.unsuspend) {
                     wrapper.unsuspend = resolve
                   } else {
-                    let { unsuspend } = wrapper
+                    const { unsuspend } = wrapper
                     wrapper.unsuspend = () => {
                       unsuspend()
                       resolve()
@@ -81,9 +81,9 @@ if (browser.webRequest) {
             : CANCEL // otherwise, bail
         }
         // CHROME from now on
-        let documentUrl = params.get("url")
-        let { frameAncestors, frameId } = request
-        let isTop = frameId === 0 || !!params.get("top")
+        const documentUrl = params.get("url")
+        const { frameAncestors, frameId } = request
+        const isTop = frameId === 0 || !!params.get("top")
         let tabUrl =
           frameAncestors &&
           frameAncestors.length &&
@@ -103,7 +103,7 @@ if (browser.webRequest) {
             tabUrl = tabUrlCache.get(tabId)
           }
         }
-        let sender = {
+        const sender = {
           tab: {
             id: tabId,
             url: tabUrl,
@@ -140,11 +140,11 @@ if (browser.webRequest) {
       }
     }
 
-    let onHeaderReceived = request => {
+    const onHeaderReceived = request => {
       let replaced = ""
-      let { responseHeaders } = request
-      let rxFP = /^feature-policy$/i
-      for (let h of request.responseHeaders) {
+      const { responseHeaders } = request
+      const rxFP = /^feature-policy$/i
+      for (const h of request.responseHeaders) {
         if (rxFP.test(h.name)) {
           h.value = h.value.replace(
             /\b(sync-xhr\s+)([^*][^;]*)/g,
@@ -155,21 +155,21 @@ if (browser.webRequest) {
       return replaced ? { responseHeaders } : null
     }
 
-    let ret = r => ({ redirectUrl: `data:application/json,${JSON.stringify(r)}` })
-    let asyncRet = msgId => {
-      let result = asyncResults.get(msgId)
+    const ret = r => ({ redirectUrl: `data:application/json,${JSON.stringify(r)}` })
+    const asyncRet = msgId => {
+      const result = asyncResults.get(msgId)
       asyncResults.delete(msgId)
       return ret(result)
     }
 
-    let listeners = new Set()
+    const listeners = new Set()
     function notifyListeners(msg, sender) {
       // Just like in the async runtime.sendMessage() API,
       // we process the listeners in order until we find a not undefined
       // result, then we return it (or undefined if none returns anything).
-      for (let l of listeners) {
+      for (const l of listeners) {
         try {
-          let result = l(JSON.parse(msg), sender)
+          const result = l(JSON.parse(msg), sender)
           if (result !== undefined) return result
         } catch (e) {
           console.error("%o processing message %o from %o", e, msg, sender)
@@ -213,10 +213,10 @@ if (browser.webRequest) {
   }
 } else if (typeof browser.runtime.sendSyncMessage !== "function") {
   // Content Script side
-  let uuid = () => (Math.random() * Date.now()).toString(16)
-  let docUrl = document.URL
+  const uuid = () => (Math.random() * Date.now()).toString(16)
+  const docUrl = document.URL
   browser.runtime.sendSyncMessage = (msg, callback) => {
-    let msgId = `${uuid()},${docUrl}`
+    const msgId = `${uuid()},${docUrl}`
     let url =
       `${ENDPOINT_PREFIX}id=${encodeURIComponent(msgId)}` +
       `&url=${encodeURIComponent(docUrl)}`
@@ -227,16 +227,16 @@ if (browser.webRequest) {
     }
 
     if (MOZILLA) {
-      let startTime = Date.now() // DEV_ONLY
-      let suspendURL = url + "&suspend=true"
+      const startTime = Date.now() // DEV_ONLY
+      const suspendURL = url + "&suspend=true"
       let suspended = 0
       let suspendedId = 0
-      let suspend = () => {
+      const suspend = () => {
         suspended++
-        let id = suspendedId++
+        const id = suspendedId++
         console.debug("sendSyncMessage suspend #%s/%s", id, suspended)
         try {
-          let r = new XMLHttpRequest()
+          const r = new XMLHttpRequest()
           r.open("GET", suspendURL, false)
           r.send(null)
         } catch (e) {
@@ -251,7 +251,7 @@ if (browser.webRequest) {
         ) // DEV_ONLY
       }
 
-      let finalize = () => {
+      const finalize = () => {
         console.debug("sendSyncMessage finalizing")
       }
 
@@ -282,9 +282,9 @@ if (browser.webRequest) {
     // to CORS but unfortunately doesn't carry any tab id except on Chromium
 
     url += `&msg=${encodeURIComponent(JSON.stringify(msg))}` // adding the payload
-    let r = new XMLHttpRequest()
+    const r = new XMLHttpRequest()
     let result
-    let key = `${ENDPOINT_PREFIX}`
+    const key = `${ENDPOINT_PREFIX}`
     let reloaded
     try {
       reloaded = sessionStorage.getItem(key) === "reloaded"

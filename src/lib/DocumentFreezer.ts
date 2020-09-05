@@ -1,5 +1,5 @@
 export {}
-var DocumentFreezer = (() => {
+const DocumentFreezer = (() => {
   const loaderAttributes = ["href", "src", "data"]
   const jsOrDataUrlRx = /^(?:data:(?:[^,;]*ml|unknown-content-type)|javascript:)/i
 
@@ -402,10 +402,10 @@ var DocumentFreezer = (() => {
     try {
       for (let element of document.querySelectorAll("*")) {
         if (element._frozenAttributes) continue
-        let fa = []
-        let loaders = []
-        for (let a of element.attributes) {
-          let name = a.localName.toLowerCase()
+        const fa = []
+        const loaders = []
+        for (const a of element.attributes) {
+          const name = a.localName.toLowerCase()
           if (loaderAttributes.includes(name)) {
             if (jsOrDataUrlRx.test(a.value)) {
               loaders.push(a)
@@ -418,7 +418,7 @@ var DocumentFreezer = (() => {
           }
         }
         if (loaders.length) {
-          for (let a of loaders) {
+          for (const a of loaders) {
             fa.push(a.cloneNode())
             a.value = "javascript://frozen"
           }
@@ -434,21 +434,21 @@ var DocumentFreezer = (() => {
   }
 
   function unfreezeAttributes() {
-    for (let element of document.querySelectorAll("*")) {
+    for (const element of document.querySelectorAll("*")) {
       if (!element._frozenAttributes) continue
-      for (let a of element._frozenAttributes) {
+      for (const a of element._frozenAttributes) {
         element.setAttributeNodeNS(a)
       }
     }
   }
 
-  let domFreezer = new MutationObserver(records => {
+  const domFreezer = new MutationObserver(records => {
     console.debug("domFreezer on", document.documentElement.outerHTML)
     freezeAttributes()
   })
 
   let suppressedScripts = 0
-  let scriptSuppressor = e => {
+  const scriptSuppressor = e => {
     if (!e.isTrusted) return
     e.preventDefault()
     ++suppressedScripts
@@ -460,7 +460,9 @@ var DocumentFreezer = (() => {
       if (document._frozen) return false
       console.debug("Freezing", document.URL)
       document._frozen = true
-      for (let et of eventTypes) document.addEventListener(et, suppressEvents, true)
+      for (const et of eventTypes) {
+        document.addEventListener(et, suppressEvents, true)
+      }
       freezeAttributes()
       domFreezer.observe(document, { childList: true, subtree: true })
       suppressedScripts = 0
@@ -473,7 +475,9 @@ var DocumentFreezer = (() => {
       domFreezer.disconnect()
       unfreezeAttributes()
       removeEventListener("beforescriptexecute", scriptSuppressor, true)
-      for (let et of eventTypes) document.removeEventListener(et, suppressEvents, true)
+      for (const et of eventTypes) {
+        document.removeEventListener(et, suppressEvents, true)
+      }
       document._frozen = false
       return true
     },

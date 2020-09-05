@@ -1,14 +1,14 @@
 export {}
 
-var XSS = (() => {
+const XSS = (() => {
   const ABORT = { cancel: true },
     ALLOW = {}
 
-  let workersMap = new Map()
-  let promptsMap = new Map()
+  const workersMap = new Map()
+  const promptsMap = new Map()
 
   async function getUserResponse(xssReq) {
-    let { originKey } = xssReq
+    const { originKey } = xssReq
     await promptsMap.get(originKey)
     // promptsMap.delete(originKey);
     switch (await XSS.getUserChoice(originKey)) {
@@ -26,8 +26,8 @@ var XSS = (() => {
   }
 
   function doneListener(request) {
-    let { requestId } = request
-    let worker = workersMap.get(requestId)
+    const { requestId } = request
+    const worker = workersMap.get(requestId)
     if (worker) {
       worker.terminate()
       workersMap.delete(requestId)
@@ -36,7 +36,7 @@ var XSS = (() => {
 
   async function requestListener(request) {
     if (ns.isEnforced(request.tabId)) {
-      let { policy } = ns
+      const { policy } = ns
       let { type } = request
       if (type !== "main_frame") {
         if (type === "sub_frame") type = "frame"
@@ -45,7 +45,7 @@ var XSS = (() => {
         }
       }
     }
-    let xssReq = XSS.parseRequest(request)
+    const xssReq = XSS.parseRequest(request)
     if (!xssReq) return null
     let userResponse = await getUserResponse(xssReq)
     if (userResponse) return userResponse
@@ -68,11 +68,11 @@ var XSS = (() => {
       data = [e.toString()]
     }
 
-    let prompting = (async () => {
+    const prompting = (async () => {
       userResponse = await getUserResponse(xssReq)
       if (userResponse) return userResponse
 
-      let { srcOrigin, destOrigin, unescapedDest } = xssReq
+      const { srcOrigin, destOrigin, unescapedDest } = xssReq
       let block = !!(reasons.urlInjection || reasons.postInjection)
 
       if (reasons.protectName) {
@@ -85,9 +85,9 @@ var XSS = (() => {
       if (reasons.urlInjection) data.push(`(URL) ${unescapedDest}`)
       if (reasons.postInjection) data.push(`(POST) ${reasons.postInjection}`)
 
-      let source = srcOrigin && srcOrigin !== "null" ? srcOrigin : "[...]"
+      const source = srcOrigin && srcOrigin !== "null" ? srcOrigin : "[...]"
 
-      let { button, option } = await Prompts.prompt({
+      const { button, option } = await Prompts.prompt({
         title: _("XSS_promptTitle"),
         message: _("XSS_promptMessage", [source, destOrigin, data.join(",")]),
         options: [
@@ -129,7 +129,7 @@ var XSS = (() => {
   }
 
   function parseUrl(url) {
-    let u = new URL(url)
+    const u = new URL(url)
     // make it cloneable
     return {
       href: u.href,
@@ -147,7 +147,7 @@ var XSS = (() => {
     async start() {
       if (!UA.isMozilla) return // async webRequest is supported on Mozilla only
 
-      let { onBeforeRequest, onCompleted, onErrorOccurred } = browser.webRequest
+      const { onBeforeRequest, onCompleted, onErrorOccurred } = browser.webRequest
 
       if (onBeforeRequest.hasListener(requestListener)) return
 
@@ -158,16 +158,16 @@ var XSS = (() => {
         (await Storage.get("sync", "xssUserChoices")).xssUserChoices || {}
 
       // conver old style whitelist if stored
-      let oldWhitelist = await XSS.Exceptions.getWhitelist()
+      const oldWhitelist = await XSS.Exceptions.getWhitelist()
       if (oldWhitelist) {
-        for (let [destOrigin, sources] of Object.entries(oldWhitelist)) {
-          for (let srcOrigin of sources) {
+        for (const [destOrigin, sources] of Object.entries(oldWhitelist)) {
+          for (const srcOrigin of sources) {
             this._userChoices[`${srcOrigin}>${destOrigin}`] = "allow"
           }
         }
         XSS.Exceptions.setWhitelist(null)
       }
-      let filter = {
+      const filter = {
         urls: ["*://*/*"],
         types: ["main_frame", "sub_frame", "object"],
       }
@@ -179,7 +179,7 @@ var XSS = (() => {
     },
 
     stop() {
-      let { onBeforeRequest } = browser.webRequest
+      const { onBeforeRequest } = browser.webRequest
       if (onBeforeRequest.hasListener(requestListener)) {
         onBeforeRequest.removeListener(requestListener)
       }
@@ -203,14 +203,14 @@ var XSS = (() => {
         srcUrl = ""
       }
 
-      let unescapedDest = unescape(destUrl)
+      const unescapedDest = unescape(destUrl)
       let srcOrigin = srcObj ? srcObj.origin : ""
       if (srcOrigin === "null") {
         srcOrigin = srcObj.href.replace(/[\?#].*/, "")
       }
-      let destOrigin = destObj.origin
+      const destOrigin = destObj.origin
 
-      let isGet = method === "GET"
+      const isGet = method === "GET"
       return {
         unparsedRequest: request,
         srcUrl,
@@ -250,13 +250,13 @@ var XSS = (() => {
         return null
       }
 
-      let skip = this.Exceptions.partial(xssReq)
-      let worker = new Worker(browser.runtime.getURL("/xss/InjectionCheckWorker.js"))
-      let { requestId } = xssReq.unparsedRequest
+      const skip = this.Exceptions.partial(xssReq)
+      const worker = new Worker(browser.runtime.getURL("/xss/InjectionCheckWorker.js"))
+      const { requestId } = xssReq.unparsedRequest
       workersMap.set(requestId, worker)
       return await new Promise((resolve, reject) => {
         worker.onmessage = e => {
-          let { data } = e
+          const { data } = e
           if (data) {
             if (data.logType) {
               window[data.logType](...data.log)
@@ -277,10 +277,10 @@ var XSS = (() => {
         }
         worker.postMessage({ handler: "check", xssReq, skip })
 
-        let onNavError = details => {
+        const onNavError = details => {
           debug("Navigation error: %o", details)
-          let { tabId, frameId, url } = details
-          let r = xssReq.unparsedRequest
+          const { tabId, frameId, url } = details
+          const r = xssReq.unparsedRequest
           if (tabId === r.tabId && frameId === r.frameId) {
             cleanup()
             reject(
@@ -294,7 +294,7 @@ var XSS = (() => {
           url: [{ urlEquals: xssReq.destUrl }],
         })
 
-        let dosTimeout = setTimeout(() => {
+        const dosTimeout = setTimeout(() => {
           if (cleanup()) {
             // the request might have been aborted otherwise
             reject(new Error("Timeout! DOS attack attempt?"))

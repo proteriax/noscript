@@ -1,21 +1,21 @@
 export {}
 // we need this because of https://bugzilla.mozilla.org/show_bug.cgi?id=439276
 
-var Base64 = {
-  purify: function (input) {
+const Base64 = {
+  purify(input) {
     return input.replace(/[^A-Za-z0-9\+\/=]+/g, "")
   },
 
-  alt: function (s) {
+  alt(s) {
     // URL base64 variant, see http://en.wikipedia.org/wiki/Base64#URL_applications
     return s.replace(/-/g, "+").replace(/_/g, "/")
   },
 
-  decode: function (input, strict) {
-    var output = ""
-    var chr1, chr2, chr3
-    var enc1, enc2, enc3, enc4
-    var i = 0
+  decode(input, strict) {
+    let output = ""
+    let chr1, chr2, chr3
+    let enc1, enc2, enc3, enc4
+    let i = 0
 
     // if (/[^A-Za-z0-9\+\/\=]/.test(input)) return ""; // we don't need this, caller checks for us
 

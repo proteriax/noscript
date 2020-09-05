@@ -2,10 +2,10 @@ export {}
 
 function deferWebTraffic(promiseToWaitFor, next) {
   debug("deferWebTraffic on %o", promiseToWaitFor)
-  let seenTabs = new Set()
+  const seenTabs = new Set()
   function checkNavigation(nav) {
     if (nav.tabId !== browser.tabs.TAB_ID_NONE && nav.url.startsWith("http")) {
-      let seen = seenTabs.has(nav.tabId)
+      const seen = seenTabs.has(nav.tabId)
       debug(`%s navigation %o`, seen ? "seen" : "unseen", nav)
       if (!seen) {
         reloadTab(nav.tabId)

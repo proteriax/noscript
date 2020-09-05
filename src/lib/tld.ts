@@ -1,5 +1,5 @@
 export {}
-var tld = {
+const tld = {
   preserveFQDNs: false,
 
   // remove trailing dots from FQDNs
@@ -14,11 +14,11 @@ var tld = {
   getDomain(aDomain) {
     if (aDomain === "localhost" || this.isIp(aDomain)) return aDomain
 
-    domain = this.normalize(aDomain)
+    const domain = this.normalize(aDomain)
 
-    let resultDomain = this.preserveFQDNs ? aDomain : domain
+    const resultDomain = this.preserveFQDNs ? aDomain : domain
 
-    var pos = domain.search(this._tldEx)
+    let pos = domain.search(this._tldEx)
     if (pos === -1) {
       pos = domain.search(this._tldRx)
       if (pos === -1) {
@@ -40,10 +40,10 @@ var tld = {
   getPublicSuffix(aDomain) {
     if (this.isIp(aDomain)) return ""
 
-    domain = this.normalize(aDomain)
-    let resultDomain = this.preserveFQDNs ? aDomain : domain
+    const domain = this.normalize(aDomain)
+    const resultDomain = this.preserveFQDNs ? aDomain : domain
 
-    var pos = domain.search(this._tldEx)
+    let pos = domain.search(this._tldEx)
     if (pos < 0) {
       pos = domain.search(this._tldRx)
       if (pos >= 0 && domain[pos] == ".") pos++

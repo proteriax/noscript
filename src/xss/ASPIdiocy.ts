@@ -1,6 +1,6 @@
 export {}
 
-var ASPIdiocy = (XSS.ASPIdiocy = {
+const ASPIdiocy = (XSS.ASPIdiocy = {
   _replaceRx: /%u([0-9a-fA-F]{4})/g,
   _affectsRx: /%u[0-9a-fA-F]{4}/,
   _badPercentRx: /%(?!u[0-9a-fA-F]{4}|[0-9a-fA-F]{2})|%(?:00|u0000)[^&=]*/g,

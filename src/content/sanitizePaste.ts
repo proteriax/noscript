@@ -1,12 +1,12 @@
 export {}
-let urlAttributes = ["href", "to", "from", "by", "values"]
-let selector = urlAttributes.map(a => `[${a}]`).join(",")
+const urlAttributes = ["href", "to", "from", "by", "values"]
+const selector = urlAttributes.map(a => `[${a}]`).join(",")
 
-for (let evType of ["drop", "paste"])
+for (const evType of ["drop", "paste"])
   window.addEventListener(
     evType,
     e => {
-      let container = e.target
+      const container = e.target
       let editing = false
       for (let el = container; el; el = el.parentElement) {
         if (el.setRangeText || el.contentEditable) {
@@ -17,15 +17,15 @@ for (let evType of ["drop", "paste"])
       if (!editing) return
 
       // we won't touch DOM elements which are already there
-      let oldNodes = new Set(container.querySelectorAll(selector + ",form"))
+      const oldNodes = new Set(container.querySelectorAll(selector + ",form"))
       window.setTimeout(() => {
         // we delay our custom sanitization after the browser performed the paste
         // or drop job, rather than replacing it, in order to avoid interferences
         // with built-in sanitization
         try {
-          let html = container.innerHTML
+          const html = container.innerHTML
           if (sanitizeExtras(container, oldNodes)) {
-            let t = e.type.toUpperCase()
+            const t = e.type.toUpperCase()
             console.log(
               `[NoScript] Sanitized\n<${t}>\n${html}\n</${t}>\nto\n<${t}>\n${container.innerHTML}\n</${t}>`,
               container
@@ -48,17 +48,17 @@ function sanitizeExtras(container, oldNodes = []) {
   let ret = false
 
   // remove attributes from forms
-  for (let f of container.getElementsByTagName("form")) {
+  for (const f of container.getElementsByTagName("form")) {
     if (oldNodes.has(f)) continue
-    for (let a of [...f.attributes]) {
+    for (const a of [...f.attributes]) {
       removeAttribute(f, a.name)
     }
   }
 
-  for (let node of container.querySelectorAll(selector)) {
+  for (const node of container.querySelectorAll(selector)) {
     if (oldNodes.has(node)) continue
-    for (let name of urlAttributes) {
-      let value = node.getAttribute(name)
+    for (const name of urlAttributes) {
+      const value = node.getAttribute(name)
       if (/^\W*(?:(?:javascript|data):|https?:[\s\S]+[[(<])/i.test(unescape(value))) {
         removeAttribute(node, name, value)
         ret = true

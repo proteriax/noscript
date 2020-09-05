@@ -1,7 +1,7 @@
 export {}
 
 XSS.Exceptions = (() => {
-  var Exceptions = {
+  const Exceptions = {
     get legacyExceptions() {
       delete this.legacyExceptions
       this.legacyExceptions = Legacy.getRxPref(
@@ -25,7 +25,7 @@ XSS.Exceptions = (() => {
         debug("[XSS preprocessing] Ignoring %o", xssReq, ...args)
       }
 
-      let {
+      const {
         srcObj,
         destObj,
         srcUrl,
@@ -100,7 +100,7 @@ XSS.Exceptions = (() => {
           }
 
           {
-            let rx = /^https:\/\/(?:[a-z]+\.)?unionbank\.com$/
+            const rx = /^https:\/\/(?:[a-z]+\.)?unionbank\.com$/
             if (rx.test(srcOrigin) && rx.test(destOrigin)) {
               return true
             }
@@ -228,12 +228,12 @@ XSS.Exceptions = (() => {
 
     isBadException(host) {
       // TLD check for Google search
-      let m = host.match(/\bgoogle\.((?:[a-z]{1,3}\.)?[a-z]+)$/i)
+      const m = host.match(/\bgoogle\.((?:[a-z]{1,3}\.)?[a-z]+)$/i)
       return m && tld.getPublicSuffix(host) != m[1]
     },
 
     partial(xssReq) {
-      let { srcObj, destObj, srcUrl, destUrl, srcOrigin, destOrigin } = xssReq
+      const { srcObj, destObj, srcUrl, destUrl, srcOrigin, destOrigin } = xssReq
 
       let skipParams, skipRx
       if (/^https:\/\/www\.paypal\.com\/(?:[\w\-]+\/)?cgi-bin\/webscr\b/.test(destUrl)) {

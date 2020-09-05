@@ -1,12 +1,14 @@
 export {}
-var PlaceHolder = (() => {
+
+const PlaceHolder = (() => {
   const HANDLERS = new Map()
   const CLASS_NAME = "__NoScript_PlaceHolder__"
   const SELECTOR = `a.${CLASS_NAME}`
+
   let checkStyle = async () => {
     checkStyle = () => {}
     if (!ns.embeddingDocument) return
-    let replacement = document.querySelector(SELECTOR)
+    const replacement = document.querySelector(SELECTOR)
     if (!replacement) return
     if (window.getComputedStyle(replacement, null).opacity !== "0.8") {
       document.head.appendChild(createHTMLElement("style")).textContent = await (
@@ -26,7 +28,7 @@ var PlaceHolder = (() => {
       if (request.embeddingDocument) {
         return document.URL === request.url
       }
-      let url = request.initialUrl || request.url
+      const url = request.initialUrl || request.url
       return "data" in element ? element.data === url : element.src === url
     }
     selectFor(request) {
@@ -45,11 +47,11 @@ var PlaceHolder = (() => {
     dest,
     props = ["width", "height", "position", "*", "margin*"]
   ) {
-    var suffixes = ["Top", "Right", "Bottom", "Left"]
+    const suffixes = ["Top", "Right", "Bottom", "Left"]
     for (let i = props.length; i-- > 0; ) {
-      let p = props[i]
+      const p = props[i]
       if (p.endsWith("*")) {
-        let prefix = p.substring(0, p.length - 1)
+        const prefix = p.substring(0, p.length - 1)
         props.splice(
           i,
           1,
@@ -60,9 +62,9 @@ var PlaceHolder = (() => {
       }
     }
 
-    let srcStyle = window.getComputedStyle(src, null)
-    let destStyle = dest.style
-    for (let p of props) {
+    const srcStyle = window.getComputedStyle(src, null)
+    const destStyle = dest.style
+    for (const p of props) {
       destStyle[p] = srcStyle[p]
     }
     if (src.offsetTop < 0 && src.offsetTop <= -src.offsetHeight) {
@@ -89,7 +91,7 @@ var PlaceHolder = (() => {
         ev => {
           if (ev.button === 0 && ev.isTrusted) {
             let ph, replacement
-            for (let e of document.elementsFromPoint(ev.clientX, ev.clientY)) {
+            for (const e of document.elementsFromPoint(ev.clientX, ev.clientY)) {
               if ((ph = e._placeHolderObj)) {
                 replacement = e
                 break
@@ -106,8 +108,7 @@ var PlaceHolder = (() => {
             }
           }
         },
-        true,
-        false
+        true
       )
     }
 
@@ -133,18 +134,18 @@ var PlaceHolder = (() => {
         this.replace(element.parentElement)
         return
       }
-      let { url } = this.request
-      let objUrl = new URL(url)
+      const { url } = this.request
+      const objUrl = new URL(url)
       this.origin = objUrl.origin
       if (this.origin === "null") {
         this.origin = objUrl.protocol
       }
-      let TYPE = `<${this.policyType.toUpperCase()}>`
+      const TYPE = `<${this.policyType.toUpperCase()}>`
 
-      let replacement = createHTMLElement("a")
+      const replacement = createHTMLElement("a")
       replacement.className = CLASS_NAME
       cloneStyle(element, replacement)
-      let setImage = () => (replacement.style.backgroundImage = `url(${ICON_URL})`)
+      const setImage = () => (replacement.style.backgroundImage = `url(${ICON_URL})`)
 
       if (ns.embeddingDocument) {
         replacement.classList.add("__ns__document")
@@ -157,16 +158,16 @@ var PlaceHolder = (() => {
       replacement.href = url
       replacement.title = `${TYPE}@${url}`
 
-      let inner = replacement.appendChild(createHTMLElement("span"))
+      const inner = replacement.appendChild(createHTMLElement("span"))
       inner.className = replacement.className
 
-      let button = inner.appendChild(createHTMLElement("button"))
+      const button = inner.appendChild(createHTMLElement("button"))
       button.className = replacement.className
       button.setAttribute("aria-label", (button.title = _("Close")))
       button.value = "close"
       button.textContent = "×"
 
-      let description = inner.appendChild(createHTMLElement("span"))
+      const description = inner.appendChild(createHTMLElement("span"))
       description.textContent = `${TYPE}@${this.origin}`
 
       replacement._placeHolderObj = this
@@ -184,7 +185,7 @@ var PlaceHolder = (() => {
 
     async enable(replacement) {
       debug("Enabling %o", this.request, this.policyType)
-      let ret = await Messages.send("blockedObjects", {
+      const ret = await Messages.send("blockedObjects", {
         url: this.request.url,
         policyType: this.policyType,
         documentUrl: document.URL,
@@ -192,7 +193,7 @@ var PlaceHolder = (() => {
       debug("Received response", ret)
       if (!ret) return
       if (ret.collapse) {
-        for (let collapsing of ret.collapse === "all"
+        for (const collapsing of ret.collapse === "all"
           ? document.querySelectorAll(SELECTOR)
           : [replacement]) {
           this.replacements.delete(collapsing)
@@ -205,7 +206,7 @@ var PlaceHolder = (() => {
         return
       }
       try {
-        let element = replacement._placeHolderElement
+        const element = replacement._placeHolderElement
         replacement.replaceWith(element.cloneNode(true))
         this.replacements.delete(replacement)
       } catch (e) {

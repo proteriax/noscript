@@ -1,6 +1,6 @@
 export {}
-var UI = (() => {
-  var UI = {
+const UI = (() => {
+  const UI = {
     initialized: false,
 
     presets: {
@@ -17,7 +17,7 @@ var UI = (() => {
         "incognito",
         (UI.incognito = tab && tab.incognito)
       )
-      let scripts = [
+      const scripts = [
         "/ui/ui.css",
         "/lib/Messages.js",
         "/lib/punycode.js",
@@ -31,7 +31,7 @@ var UI = (() => {
       }
       await include(scripts)
 
-      let inited = new Promise(resolve => {
+      const inited = new Promise(resolve => {
         Messages.addHandler({
           async settings(m) {
             if (!UI.tabId === m.tabId) return
@@ -98,7 +98,7 @@ var UI = (() => {
     },
 
     async revokeTemp(reloadAffected = false) {
-      let policy = this.policy
+      const policy = this.policy
       Policy.hydrate(policy.dry(), policy)
       if (this.isDirty(true)) {
         await this.updateSettings({ policy, reloadAffected })
@@ -106,19 +106,19 @@ var UI = (() => {
     },
 
     isDirty(reset = false) {
-      let currentSnapshot = this.policy.snapshot
-      let dirty = currentSnapshot != this.snapshot
+      const currentSnapshot = this.policy.snapshot
+      const dirty = currentSnapshot != this.snapshot
       if (reset) this.snapshot = currentSnapshot
       return dirty
     },
 
     async openSiteInfo(domain) {
-      let url = `/ui/siteInfo.html#${encodeURIComponent(domain)};${UI.tabId}`
+      const url = `/ui/siteInfo.html#${encodeURIComponent(domain)};${UI.tabId}`
       browser.tabs.create({ url })
     },
 
     wireOption(name, storage = "sync", onchange) {
-      let input = document.querySelector(`#opt-${name}`)
+      const input = document.querySelector(`#opt-${name}`)
       if (!input) {
         debug("Checkbox not found %s", name)
         return
@@ -127,7 +127,7 @@ var UI = (() => {
         input.onchange = e => storage(input)
         input.checked = storage(null)
       } else {
-        let obj = UI[storage]
+        const obj = UI[storage]
         if (!obj) log(storage)
         input.checked = obj[name]
         if (onchange) onchange(input.checked)
@@ -141,8 +141,9 @@ var UI = (() => {
     },
   }
 
-  var HighContrast = {
+  const HighContrast = {
     css: null,
+
     async init() {
       this.widget = UI.wireOption("highContrast", "local", value => {
         UI.highContrast = value
@@ -150,8 +151,9 @@ var UI = (() => {
       })
       await this.toggle()
     },
+
     async toggle() {
-      let hc = "highContrast" in UI ? UI.highContrast : await this.detect()
+      const hc = "highContrast" in UI ? UI.highContrast : await this.detect()
       if (hc) {
         if (this.css) {
           document.documentElement.appendChild(this.css)
@@ -172,7 +174,7 @@ var UI = (() => {
         UI.highContrast = UI.local.highContrast
       } else {
         // auto-detect
-        let canary = document.createElement("input")
+        const canary = document.createElement("input")
         canary.className = "https-only"
         canary.style.display = "none"
         document.body.appendChild(canary)
@@ -191,7 +193,7 @@ var UI = (() => {
   }
 
   function compareBy(prop, a, b) {
-    let x = a[prop],
+    const x = a[prop],
       y = b[prop]
     if (x.endsWith(":")) {
       if (!y.endsWith(":")) {
@@ -253,7 +255,7 @@ var UI = (() => {
   UI.Sites = class {
     constructor(parentNode, presets = DEF_PRESETS) {
       this.parentNode = parentNode
-      let policy = UI.policy
+      const policy = UI.policy
       this.uiCount = UI.Sites.count = (UI.Sites.count || 0) + 1
       this.sites = policy.sites
       this.presets = presets
@@ -263,22 +265,22 @@ var UI = (() => {
     }
 
     initRow(table = this.table) {
-      let row = table.querySelector("tr.site")
+      const row = table.querySelector("tr.site")
       // PRESETS
       {
-        let presets = row.querySelector(".presets")
-        let [span, input, label] = presets.querySelectorAll(
+        const presets = row.querySelector(".presets")
+        const [span, input, label] = presets.querySelectorAll(
           "span.preset, input.preset, label.preset"
         )
         span.remove()
-        for (let [preset, customizable] of Object.entries(this.presets)) {
-          let messageKey = UI.presets[preset]
+        for (const [preset, customizable] of Object.entries(this.presets)) {
+          const messageKey = UI.presets[preset]
           input.value = preset
           label.textContent = label.title = input.title = _(messageKey)
           input.disabled = UI.forceIncognito && !INCOGNITO_PRESETS.includes(preset)
-          let clone = span.cloneNode(true)
+          const clone = span.cloneNode(true)
           clone.classList.add(preset)
-          let temp = clone.querySelector(".temp")
+          const temp = clone.querySelector(".temp")
           if (TEMP_PRESETS.includes(preset)) {
             temp.title = _("allowTemp", `(${label.title.toUpperCase()})`)
             temp.nextElementSibling.textContent = _("allowTemp", "") // label;
@@ -298,27 +300,27 @@ var UI = (() => {
 
       // URL
       {
-        let [input, label] = row.querySelectorAll("input.https-only, label.https-only")
+        const [input, label] = row.querySelectorAll("input.https-only, label.https-only")
         input.title = label.title = label.textContent = _("httpsOnly")
       }
 
       // CUSTOMIZER ROW
       {
-        let [customizer, legend, cap, capInput, capLabel] = table.querySelectorAll(
+        const [customizer, legend, cap, capInput, capLabel] = table.querySelectorAll(
           ".customizer, legend, span.cap, input.cap, label.cap"
         )
         row._customizer = customizer
         customizer.remove()
-        let capParent = cap.parentNode
+        const capParent = cap.parentNode
         capParent.removeChild(cap)
         legend.textContent = _("allow")
-        let idSuffix = UI.Sites.count
-        for (let capability of Permissions.ALL) {
+        const idSuffix = UI.Sites.count
+        for (const capability of Permissions.ALL) {
           capInput.id = `capability-${capability}-${idSuffix}`
           capLabel.setAttribute("for", capInput.id)
           capInput.value = capability
           capInput.title = capLabel.textContent = _(`cap_${capability}`) || capability
-          let clone = capParent.appendChild(cap.cloneNode(true))
+          const clone = capParent.appendChild(cap.cloneNode(true))
           clone.classList.add(capability)
         }
       }
@@ -329,14 +331,14 @@ var UI = (() => {
 
     static correctSize(presets) {
       // adapt button to label if needed
-      let sizer = document.createElement("div")
+      const sizer = document.createElement("div")
       sizer.id = "presets-sizer"
       sizer.appendChild(presets.cloneNode(true))
       document.body.appendChild(sizer)
-      let presetWidth = sizer.querySelector("input.preset").offsetWidth
+      const presetWidth = sizer.querySelector("input.preset")!.offsetWidth
       let labelWidth = 0
-      for (let l of sizer.querySelectorAll("label.preset")) {
-        let lw = l.offsetWidth
+      for (const l of sizer.querySelectorAll("label.preset")) {
+        const lw = l.offsetWidth
         debug("lw", l.textContent, lw)
         if (lw > labelWidth) labelWidth = lw
       }
@@ -344,9 +346,9 @@ var UI = (() => {
       debug(`Preset: %s Label: %s`, presetWidth, labelWidth)
       labelWidth += 16
       if (presetWidth < labelWidth) {
-        for (let ss of document.styleSheets) {
+        for (const ss of document.styleSheets) {
           if (ss.href.endsWith("/ui.css")) {
-            for (let r of ss.cssRules) {
+            for (const r of ss.cssRules) {
               if (/input\.preset:checked.*min-width:/.test(r.cssText)) {
                 r.style.minWidth = labelWidth + "px"
                 break
@@ -375,7 +377,7 @@ var UI = (() => {
       this.fragment = this.template.content
       this.table = this.fragment.querySelector("table.sites")
       this.rowTemplate = this.initRow()
-      for (let r of this.allSiteRows()) {
+      for (const r of this.allSiteRows()) {
         r.remove()
       }
 
@@ -384,20 +386,20 @@ var UI = (() => {
     }
 
     siteNeeds(site, type) {
-      let siteTypes = this.typesMap && this.typesMap.get(site)
+      const siteTypes = this.typesMap && this.typesMap.get(site)
       return !!siteTypes && siteTypes.has(type)
     }
 
     handleEvent(ev) {
-      let target = ev.target
-      let customizer = target.closest(".customizer")
-      let row = customizer
+      const target = ev.target
+      const customizer = target.closest(".customizer")
+      const row = customizer
         ? customizer.parentNode.querySelector("tr.customizing")
         : target.closest("tr.site")
       if (!row) return
 
-      let isTemp = target.matches("input.temp")
-      let preset = target.matches("input.preset")
+      const isTemp = target.matches("input.temp")
+      const preset = target.matches("input.preset")
         ? target
         : customizer || isTemp
         ? row.querySelector("input.preset:checked")
@@ -422,18 +424,18 @@ var UI = (() => {
         return
       }
 
-      let { siteMatch, contextMatch, perms } = row
+      const { siteMatch, contextMatch, perms } = row
 
-      let isCap = customizer && target.matches(".cap")
-      let tempToggle = preset.parentNode.querySelector("input.temp")
+      const isCap = customizer && target.matches(".cap")
+      const tempToggle = preset.parentNode.querySelector("input.temp")
 
       if (ev.type === "change") {
         row.permissionsChanged = false
         if (!row._originalPerms) {
           row._originalPerms = row.perms.clone()
         }
-        let policy = UI.policy
-        let presetValue = preset.value
+        const policy = UI.policy
+        const presetValue = preset.value
         let policyPreset = presetValue.startsWith("T_")
           ? policy[presetValue.substring(2)].tempTwin
           : policy[presetValue]
@@ -463,9 +465,9 @@ var UI = (() => {
           if (isTemp) {
             row.perms.temp = target.checked || UI.forceIncognito
           } else {
-            let temp = row.perms.temp || UI.forceIncognito
+            const temp = row.perms.temp || UI.forceIncognito
             tempToggle.checked = temp
-            let perms =
+            const perms =
               row._customPerms ||
               (row._customPerms = new Permissions(new Set(row.perms.capabilities), temp))
             row.perms = perms
@@ -487,10 +489,10 @@ var UI = (() => {
         perms,
         this.dirty
       )
-      for (let r of this.table.querySelectorAll("tr.customizing")) {
+      for (const r of this.table.querySelectorAll("tr.customizing")) {
         r.classList.toggle("customizing", false)
       }
-      let customizer = this.rowTemplate._customizer
+      const customizer = this.rowTemplate._customizer
       customizer.classList.toggle("closed", true)
 
       if (
@@ -511,10 +513,10 @@ var UI = (() => {
 
       customizer._preset = preset
       row.classList.toggle("customizing", true)
-      let immutable = Permissions.IMMUTABLE[preset.value] || {}
+      const immutable = Permissions.IMMUTABLE[preset.value] || {}
       let lastInput = null
-      for (let input of customizer.querySelectorAll("input")) {
-        let type = input.value
+      for (const input of customizer.querySelectorAll("input")) {
+        const type = input.value
         if (type in immutable) {
           input.disabled = true
           input.checked = immutable[type]
@@ -528,7 +530,7 @@ var UI = (() => {
 
       row.parentNode.insertBefore(customizer, row.nextElementSibling)
       customizer.classList.toggle("closed", false)
-      let temp = preset.parentNode.querySelector("input.temp")
+      const temp = preset.parentNode.querySelector("input.temp")
       customizer.onkeydown = e => {
         if (e.shiftKey) return true
         switch (e.code) {
@@ -559,7 +561,7 @@ var UI = (() => {
             e.stopPropagation()
             return false
           case "KeyT": {
-            let temp = preset.parentNode.querySelector("input.temp")
+            const temp = preset.parentNode.querySelector("input.temp")
             if (temp) temp.checked = !temp.checked || UI.forceIncognito
           }
         }
@@ -571,12 +573,12 @@ var UI = (() => {
     }
 
     render(sites = this.sites, sorter = this.sorter) {
-      let parentNode = this.parentNode
+      const parentNode = this.parentNode
       debug("Rendering %o inside %o", sites, parentNode)
       if (sites) this._populate(sites, sorter)
       parentNode.innerHTML = ""
       parentNode.appendChild(this.fragment)
-      let root = parentNode.querySelector("table.sites")
+      const root = parentNode.querySelector("table.sites")
       debug("Wiring", root)
       if (!root.wiredBy) {
         root.addEventListener("keydown", e => this._keyNavHandler(e), true)
@@ -588,7 +590,7 @@ var UI = (() => {
             // first cap checkbox once focused from keydown
             switch (e.code) {
               case "Space": {
-                let focused = document.activeElement
+                const focused = document.activeElement
                 if (focused.matches("tr .preset")) {
                   focused.closest("tr").querySelector(".preset[value='CUSTOM']").click()
                   e.preventDefault()
@@ -606,22 +608,22 @@ var UI = (() => {
     }
 
     _keyNavHandler(e) {
-      let focused = document.activeElement
+      const focused = document.activeElement
       if (!focused) return
-      let row = focused.closest("tr")
+      const row = focused.closest("tr")
       if (!row || row.matches(".customizer")) return
       let dir = "next"
       let newRow
-      let mappedPreset = {
+      const mappedPreset = {
         "+": "TRUSTED",
         "-": "UNTRUSTED",
-        "0": "DEFAULT",
+        0: "DEFAULT",
         t: "T_TRUSTED",
         c: "CUSTOM",
       }[e.key]
 
       if (mappedPreset) {
-        let p = row.querySelector(`.preset[value='${mappedPreset}']`)
+        const p = row.querySelector(`.preset[value='${mappedPreset}']`)
         if (p) {
           p.focus()
           p.click()
@@ -649,13 +651,13 @@ var UI = (() => {
         case "ArrowDown":
           if (!newRow) {
             this.customize(null)
-            let prop = `${dir}ElementSibling`
+            const prop = `${dir}ElementSibling`
             newRow = row[prop]
             if (!(newRow && newRow.matches("tr"))) newRow = row
           }
 
           if (newRow === row) {
-            let topButton = document.querySelector("#top > .icon")
+            const topButton = document.querySelector("#top > .icon")
             if (topButton) topButton.focus()
           } else {
             newRow.querySelector("input.preset:checked").focus()
@@ -676,7 +678,7 @@ var UI = (() => {
       this.clear()
       let hasTemp = false
       if (sites instanceof Sites) {
-        for (let [site, perms] of sites) {
+        for (const [site, perms] of sites) {
           this.append(site, site, perms)
           if (!hasTemp) hasTemp = perms.temp
         }
@@ -687,7 +689,7 @@ var UI = (() => {
             site = site.site
             context = site.context
           }
-          let { siteMatch, perms, contextMatch } = UI.policy.get(site, context)
+          const { siteMatch, perms, contextMatch } = UI.policy.get(site, context)
           this.append(site, siteMatch, perms, contextMatch)
           if (!hasTemp) hasTemp = perms.temp
         }
@@ -698,16 +700,16 @@ var UI = (() => {
     }
 
     focus() {
-      let firstPreset = this.table.querySelector("input.preset:checked")
+      const firstPreset = this.table.querySelector("input.preset:checked")
       if (firstPreset) firstPreset.focus()
     }
 
     sort(sorter = this.sorter) {
       if (this.mainDomain) {
-        let md = this.mainDomain
-        let wrappedCompare = sorter
+        const md = this.mainDomain
+        const wrappedCompare = sorter
         sorter = (a, b) => {
-          let x = a.domain,
+          const x = a.domain,
             y = b.domain
           if (x === md) {
             if (y !== md) {
@@ -719,31 +721,31 @@ var UI = (() => {
           return wrappedCompare.call(this, a, b)
         }
       }
-      let rows = [...this.allSiteRows()].sort(sorter.bind(this))
+      const rows = [...this.allSiteRows()].sort(sorter.bind(this))
       if (this.mainSite) {
-        let mainLabel = "." + this.mainDomain
-        let topIdx = rows.findIndex(r => r._label === mainLabel)
+        const mainLabel = "." + this.mainDomain
+        const topIdx = rows.findIndex(r => r._label === mainLabel)
         if (topIdx === -1) rows.findIndex(r => r._site === this.mainSite)
         if (topIdx !== -1) {
           // move the row to the top
-          let topRow = rows.splice(topIdx, 1)[0]
+          const topRow = rows.splice(topIdx, 1)[0]
           rows.unshift(topRow)
           topRow.classList.toggle("main", true)
         }
       }
       this.clear()
-      for (let row of rows) this.table.appendChild(row)
+      for (const row of rows) this.table.appendChild(row)
     }
 
     sorter(a, b) {
-      let cb = compareBy.bind(this)
+      const cb = compareBy.bind(this)
       return cb("domain", a, b) || cb("_label", a, b)
     }
 
     async tempTrustAll() {
-      let { policy } = UI
+      const { policy } = UI
       let changed = 0
-      for (let row of this.allSiteRows()) {
+      for (const row of this.allSiteRows()) {
         if (row._preset === "DEFAULT") {
           policy.set(row._site, policy.TRUSTED.tempTwin)
           changed++
@@ -769,8 +771,8 @@ var UI = (() => {
         contextMatch,
         perms
       )
-      let policy = UI.policy
-      let row = this.rowTemplate.cloneNode(true)
+      const policy = UI.policy
+      const row = this.rowTemplate.cloneNode(true)
       row.sitesCount = sitesCount
       let url
       try {
@@ -780,32 +782,32 @@ var UI = (() => {
         }
       } catch (e) {
         if (/^(\w+:)\/*$/.test(site)) {
-          let hostname = ""
+          const hostname = ""
           url = { protocol: RegExp.$1, hostname, origin: site, pathname: "" }
           debug("Lonely %o", url)
         } else {
           debug("Domain %s (%s)", site, siteMatch)
-          let protocol = Sites.isSecureDomainKey(site) ? "https:" : "http:"
-          let hostname = Sites.toggleSecureDomainKey(site, false)
+          const protocol = Sites.isSecureDomainKey(site) ? "https:" : "http:"
+          const hostname = Sites.toggleSecureDomainKey(site, false)
           url = { protocol, hostname, origin: `${protocol}//${site}`, pathname: "/" }
         }
       }
 
-      let hostname = Sites.toExternal(url.hostname)
+      const hostname = Sites.toExternal(url.hostname)
       let overrideDefault =
         site && url.protocol && site !== url.protocol
           ? policy.get(url.protocol, contextMatch)
           : null
       if (overrideDefault && !overrideDefault.siteMatch) overrideDefault = null
 
-      let domain = tld.getDomain(hostname)
-      let disableDefault = false
+      const domain = tld.getDomain(hostname)
+      const disableDefault = false
       if (!siteMatch || (siteMatch === url.protocol && site !== siteMatch)) {
         siteMatch = site
       }
-      let secure = Sites.isSecureDomainKey(siteMatch)
-      let isOnion = UI.local.isTorBrowser && hostname && hostname.endsWith(".onion")
-      let keyStyle = secure
+      const secure = Sites.isSecureDomainKey(siteMatch)
+      const isOnion = UI.local.isTorBrowser && hostname && hostname.endsWith(".onion")
+      const keyStyle = secure
         ? "secure"
         : !domain || /^\w+:/.test(siteMatch)
         ? url.protocol === "https:" || isOnion
@@ -817,7 +819,7 @@ var UI = (() => {
         ? "domain"
         : "host"
 
-      let urlContainer = row.querySelector(".url")
+      const urlContainer = row.querySelector(".url")
       urlContainer.dataset.key = keyStyle
       row._site = site
 
@@ -827,8 +829,8 @@ var UI = (() => {
       row.domain = domain || siteMatch
       if (domain) {
         // "normal" URL
-        let justDomain = hostname === domain
-        let domainEntry = secure || domain === site
+        const justDomain = hostname === domain
+        const domainEntry = secure || domain === site
         row._label = domainEntry ? "." + domain : site
         row.querySelector(".protocol").textContent = `${url.protocol}//`
         row.querySelector(".sub").textContent = justDomain
@@ -844,17 +846,17 @@ var UI = (() => {
         row._label = siteMatch
         urlContainer.querySelector(".full-address").textContent = siteMatch
       }
-      let httpsOnly = row.querySelector("input.https-only")
+      const httpsOnly = row.querySelector("input.https-only")
       httpsOnly.checked = keyStyle === "full" || keyStyle === "secure"
 
-      let presets = row.querySelectorAll("input.preset")
-      let idSuffix = `-${this.uiCount}-${sitesCount}`
-      for (let p of presets) {
+      const presets = row.querySelectorAll("input.preset")
+      const idSuffix = `-${this.uiCount}-${sitesCount}`
+      for (const p of presets) {
         p.id = `${p.value}${idSuffix}`
         p.name = `preset${idSuffix}`
         let label = p.nextElementSibling
         label.setAttribute("for", p.id)
-        let temp = p.parentNode.querySelector("input.temp")
+        const temp = p.parentNode.querySelector("input.temp")
         if (temp) {
           temp.id = `temp-${p.id}`
           label = temp.nextElementSibling
@@ -862,10 +864,10 @@ var UI = (() => {
         }
       }
 
-      let getPresetName = perms => {
+      const getPresetName = perms => {
         let presetName = "CUSTOM"
-        for (let p of ["TRUSTED", "UNTRUSTED", "DEFAULT"]) {
-          let preset = policy[p]
+        for (const p of ["TRUSTED", "UNTRUSTED", "DEFAULT"]) {
+          const preset = policy[p]
           switch (perms) {
             case preset:
               presetName = p
@@ -881,15 +883,15 @@ var UI = (() => {
         return presetName
       }
 
-      let presetName = getPresetName(perms)
+      const presetName = getPresetName(perms)
       if (overrideDefault) {
-        let overrideName = getPresetName(overrideDefault.perms)
+        const overrideName = getPresetName(overrideDefault.perms)
         if (overrideName) {
-          let override = row.querySelector(`.presets input[value="${overrideName}"]`)
+          const override = row.querySelector(`.presets input[value="${overrideName}"]`)
           if (override) {
-            let def = row.querySelector(`.presets input[value="DEFAULT"]`)
+            const def = row.querySelector(`.presets input[value="DEFAULT"]`)
             if (def && def !== override) {
-              let label = def.nextElementSibling
+              const label = def.nextElementSibling
               label.title = def.title = `${override.title} (${overrideDefault.siteMatch})`
               label.textContent = override.nextElementSibling.textContent + "*"
               label.classList.toggle("override", true)
@@ -903,11 +905,11 @@ var UI = (() => {
         }
       }
 
-      let tempFirst = true // TODO: make it a preference
-      let unsafeMatch = keyStyle !== "secure" && keyStyle !== "full"
+      const tempFirst = true // TODO: make it a preference
+      const unsafeMatch = keyStyle !== "secure" && keyStyle !== "full"
       if (presetName === "DEFAULT" && (tempFirst || unsafeMatch)) {
         // prioritize temporary privileges over permanent
-        for (let p of TEMP_PRESETS) {
+        for (const p of TEMP_PRESETS) {
           if (p in this.presets && (unsafeMatch || (tempFirst && p === "TRUSTED"))) {
             row
               .querySelector(`.presets input[value="${p}"]`)
@@ -916,14 +918,14 @@ var UI = (() => {
           }
         }
       }
-      let preset = row.querySelector(`.presets input[value="${presetName}"]`)
+      const preset = row.querySelector(`.presets input[value="${presetName}"]`)
       if (!preset) {
         debug(`Preset %s not found in %s!`, presetName, row.innerHTML)
       } else {
         preset.checked = true
         row.dataset.preset = row._preset = presetName
         if (TEMP_PRESETS.includes(presetName)) {
-          let temp = preset.parentNode.querySelector("input.temp")
+          const temp = preset.parentNode.querySelector("input.temp")
           if (temp) {
             temp.checked = perms.temp
           }
@@ -945,16 +947,16 @@ var UI = (() => {
       }
       if (site !== row.siteMatch) {
         this.customize(null)
-        let focused = document.activeElement
-        let { policy } = UI
+        const focused = document.activeElement
+        const { policy } = UI
         policy.set(row.siteMatch, policy.DEFAULT)
         policy.set(site, row.perms)
-        for (let r of this.allSiteRows()) {
+        for (const r of this.allSiteRows()) {
           if (r !== row && r.siteMatch === site && r.contextMatch === row.contextMatch) {
             r.remove()
           }
         }
-        let newRow = this.createSiteRow(
+        const newRow = this.createSiteRow(
           site,
           site,
           row.perms,
@@ -963,7 +965,7 @@ var UI = (() => {
         )
         row.parentNode.replaceChild(newRow, row)
         if (focused) {
-          let selector = focused.matches(".preset[value]")
+          const selector = focused.matches(".preset[value]")
             ? `.preset[value="${focused.value}"]`
             : ".https-only"
           newRow.querySelector(selector).focus()
@@ -973,9 +975,9 @@ var UI = (() => {
 
     highlight(key) {
       key = Sites.toExternal(key)
-      for (let r of this.allSiteRows()) {
+      for (const r of this.allSiteRows()) {
         if (r.querySelector(".full-address").textContent.trim().includes(key)) {
-          let url = r.lastElementChild
+          const url = r.lastElementChild
           url.style.transition = r.style.transition = "none"
           r.style.backgroundColor = "#850"
           url.style.transform = "scale(2)"
@@ -993,7 +995,7 @@ var UI = (() => {
 
     filterSites(key) {
       key = Sites.toExternal(key)
-      for (let r of this.allSiteRows()) {
+      for (const r of this.allSiteRows()) {
         if (r.querySelector(".full-address").textContent.trim().includes(key)) {
           r.style.display = ""
         } else {

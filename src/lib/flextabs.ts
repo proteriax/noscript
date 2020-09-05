@@ -7,9 +7,9 @@ export {}
   } else {
     root.flextabs = factory()
   }
-})(this, function () {
-  var flextabs = function (target) {
-    var _ = {}
+})(this, () => {
+  const flextabs = function (target) {
+    const _ = {}
 
     _.flextabs = target
 
@@ -18,14 +18,14 @@ export {}
     _.content = _.flextabs.querySelectorAll(".flextabs__content")
 
     _.reset = function () {
-      for (var i = 0; i < _.toggle.length; i += 1) {
+      for (let i = 0; i < _.toggle.length; i += 1) {
         _.toggle[i].classList.remove("flextabs__toggle--active--last")
         _.content[i].classList.remove("flextabs__content--active--last")
       }
     }
 
     _.activate = function () {
-      var i = Array.prototype.indexOf.call(_.toggle, this)
+      const i = Array.prototype.indexOf.call(_.toggle, this)
       _.toggle[i].classList.toggle("flextabs__toggle--active")
       _.toggle[i].classList.add("flextabs__toggle--active--last")
       _.content[i].classList.toggle("flextabs__content--active")
@@ -33,8 +33,8 @@ export {}
     }
 
     _.aria = function () {
-      for (var i = 0; i < _.toggle.length; i += 1) {
-        var style = getComputedStyle(_.content[i])
+      for (let i = 0; i < _.toggle.length; i += 1) {
+        const style = getComputedStyle(_.content[i])
         if (style.getPropertyValue("display") !== "none") {
           _.toggle[i].setAttribute("aria-expanded", true)
         } else {
@@ -51,7 +51,7 @@ export {}
     }
 
     _.init = function () {
-      for (var i = 0; i < _.toggle.length; i += 1) {
+      for (let i = 0; i < _.toggle.length; i += 1) {
         window.addEventListener("load", _.aria)
         window.addEventListener("resize", _.aria)
         _.toggle[i].addEventListener("click", _.click)

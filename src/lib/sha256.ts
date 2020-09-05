@@ -8,14 +8,14 @@ export /**
  */
 /*jslint bitwise: true */{}
 ;(function () {
-  var ERROR = "input is invalid type"
-  var WINDOW = typeof window === "object"
-  var root = WINDOW ? window : {}
+  const ERROR = "input is invalid type"
+  let WINDOW = typeof window === "object"
+  let root = WINDOW ? window : {}
   if (root.JS_SHA256_NO_WINDOW) {
     WINDOW = false
   }
-  var WEB_WORKER = !WINDOW && typeof self === "object"
-  var NODE_JS =
+  const WEB_WORKER = !WINDOW && typeof self === "object"
+  const NODE_JS =
     !root.JS_SHA256_NO_NODE_JS &&
     typeof process === "object" &&
     process.versions &&
@@ -25,14 +25,15 @@ export /**
   } else if (WEB_WORKER) {
     root = self
   }
-  var COMMON_JS =
+  const COMMON_JS =
     !root.JS_SHA256_NO_COMMON_JS && typeof module === "object" && module.exports
-  var AMD = typeof define === "function" && define.amd
-  var ARRAY_BUFFER = !root.JS_SHA256_NO_ARRAY_BUFFER && typeof ArrayBuffer !== "undefined"
-  var HEX_CHARS = "0123456789abcdef".split("")
-  var EXTRA = [-2147483648, 8388608, 32768, 128]
-  var SHIFT = [24, 16, 8, 0]
-  var K = [
+  const AMD = typeof define === "function" && define.amd
+  const ARRAY_BUFFER =
+    !root.JS_SHA256_NO_ARRAY_BUFFER && typeof ArrayBuffer !== "undefined"
+  const HEX_CHARS = "0123456789abcdef".split("")
+  const EXTRA = [-2147483648, 8388608, 32768, 128]
+  const SHIFT = [24, 16, 8, 0]
+  const K = [
     0x428a2f98,
     0x71374491,
     0xb5c0fbcf,
@@ -98,9 +99,9 @@ export /**
     0xbef9a3f7,
     0xc67178f2,
   ]
-  var OUTPUT_TYPES = ["hex", "array", "digest", "arrayBuffer"]
+  const OUTPUT_TYPES = ["hex", "array", "digest", "arrayBuffer"]
 
-  var blocks = []
+  const blocks = []
 
   if (root.JS_SHA256_NO_NODE_JS || !Array.isArray) {
     Array.isArray = function (obj) {
@@ -116,14 +117,14 @@ export /**
     }
   }
 
-  var createOutputMethod = function (outputType, is224) {
+  const createOutputMethod = function (outputType, is224) {
     return function (message) {
       return new Sha256(is224, true).update(message)[outputType]()
     }
   }
 
-  var createMethod = function (is224) {
-    var method = createOutputMethod("hex", is224)
+  const createMethod = function (is224) {
+    let method = createOutputMethod("hex", is224)
     if (NODE_JS) {
       method = nodeWrap(method, is224)
     }
@@ -133,18 +134,18 @@ export /**
     method.update = function (message) {
       return method.create().update(message)
     }
-    for (var i = 0; i < OUTPUT_TYPES.length; ++i) {
-      var type = OUTPUT_TYPES[i]
+    for (let i = 0; i < OUTPUT_TYPES.length; ++i) {
+      const type = OUTPUT_TYPES[i]
       method[type] = createOutputMethod(type, is224)
     }
     return method
   }
 
   var nodeWrap = function (method, is224) {
-    var crypto = eval("require('crypto')")
-    var Buffer = eval("require('buffer').Buffer")
-    var algorithm = is224 ? "sha224" : "sha256"
-    var nodeMethod = function (message) {
+    const crypto = eval("require('crypto')")
+    const Buffer = eval("require('buffer').Buffer")
+    const algorithm = is224 ? "sha224" : "sha256"
+    const nodeMethod = function (message) {
       if (typeof message === "string") {
         return crypto.createHash(algorithm).update(message, "utf8").digest("hex")
       } else {
@@ -167,22 +168,22 @@ export /**
     return nodeMethod
   }
 
-  var createHmacOutputMethod = function (outputType, is224) {
+  const createHmacOutputMethod = function (outputType, is224) {
     return function (key, message) {
       return new HmacSha256(key, is224, true).update(message)[outputType]()
     }
   }
 
-  var createHmacMethod = function (is224) {
-    var method = createHmacOutputMethod("hex", is224)
+  const createHmacMethod = function (is224) {
+    const method = createHmacOutputMethod("hex", is224)
     method.create = function (key) {
       return new HmacSha256(key, is224)
     }
     method.update = function (key, message) {
       return method.create(key).update(message)
     }
-    for (var i = 0; i < OUTPUT_TYPES.length; ++i) {
-      var type = OUTPUT_TYPES[i]
+    for (let i = 0; i < OUTPUT_TYPES.length; ++i) {
+      const type = OUTPUT_TYPES[i]
       method[type] = createHmacOutputMethod(type, is224)
     }
     return method
@@ -227,7 +228,7 @@ export /**
     if (this.finalized) {
       return
     }
-    var notString,
+    let notString,
       type = typeof message
     if (type !== "string") {
       if (type === "object") {
@@ -245,7 +246,7 @@ export /**
       }
       notString = true
     }
-    var code,
+    let code,
       index = 0,
       i,
       length = message.length,
@@ -308,7 +309,7 @@ export /**
       return
     }
     this.finalized = true
-    var blocks = this.blocks,
+    const blocks = this.blocks,
       i = this.lastByteIndex
     blocks[16] = this.block
     blocks[i >> 2] |= EXTRA[i & 3]
@@ -326,7 +327,7 @@ export /**
   }
 
   Sha256.prototype.hash = function () {
-    var a = this.h0,
+    let a = this.h0,
       b = this.h1,
       c = this.h2,
       d = this.h3,
@@ -424,7 +425,7 @@ export /**
   Sha256.prototype.hex = function () {
     this.finalize()
 
-    var h0 = this.h0,
+    const h0 = this.h0,
       h1 = this.h1,
       h2 = this.h2,
       h3 = this.h3,
@@ -433,7 +434,7 @@ export /**
       h6 = this.h6,
       h7 = this.h7
 
-    var hex =
+    let hex =
       HEX_CHARS[(h0 >> 28) & 0x0f] +
       HEX_CHARS[(h0 >> 24) & 0x0f] +
       HEX_CHARS[(h0 >> 20) & 0x0f] +
@@ -509,7 +510,7 @@ export /**
   Sha256.prototype.digest = function () {
     this.finalize()
 
-    var h0 = this.h0,
+    const h0 = this.h0,
       h1 = this.h1,
       h2 = this.h2,
       h3 = this.h3,
@@ -518,7 +519,7 @@ export /**
       h6 = this.h6,
       h7 = this.h7
 
-    var arr = [
+    const arr = [
       (h0 >> 24) & 0xff,
       (h0 >> 16) & 0xff,
       (h0 >> 8) & 0xff,
@@ -559,8 +560,8 @@ export /**
   Sha256.prototype.arrayBuffer = function () {
     this.finalize()
 
-    var buffer = new ArrayBuffer(this.is224 ? 28 : 32)
-    var dataView = new DataView(buffer)
+    const buffer = new ArrayBuffer(this.is224 ? 28 : 32)
+    const dataView = new DataView(buffer)
     dataView.setUint32(0, this.h0)
     dataView.setUint32(4, this.h1)
     dataView.setUint32(8, this.h2)
@@ -575,10 +576,10 @@ export /**
   }
 
   function HmacSha256(key, is224, sharedMemory) {
-    var i,
+    let i,
       type = typeof key
     if (type === "string") {
-      var bytes = [],
+      let bytes = [],
         length = key.length,
         index = 0,
         code
@@ -622,10 +623,10 @@ export /**
       key = new Sha256(is224, true).update(key).array()
     }
 
-    var oKeyPad = [],
+    const oKeyPad = [],
       iKeyPad = []
     for (i = 0; i < 64; ++i) {
-      var b = key[i] || 0
+      const b = key[i] || 0
       oKeyPad[i] = 0x5c ^ b
       iKeyPad[i] = 0x36 ^ b
     }
@@ -643,7 +644,7 @@ export /**
     Sha256.prototype.finalize.call(this)
     if (this.inner) {
       this.inner = false
-      var innerHash = this.array()
+      const innerHash = this.array()
       Sha256.call(this, this.is224, this.sharedMemory)
       this.update(this.oKeyPad)
       this.update(innerHash)
@@ -651,7 +652,7 @@ export /**
     }
   }
 
-  var exports = createMethod()
+  const exports = createMethod()
   exports.sha256 = exports
   exports.sha224 = createMethod(true)
   exports.sha256.hmac = createHmacMethod()
@@ -663,9 +664,7 @@ export /**
     root.sha256 = exports.sha256
     root.sha224 = exports.sha224
     if (AMD) {
-      define(function () {
-        return exports
-      })
+      define(() => exports)
     }
   }
 })()

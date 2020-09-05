@@ -3,7 +3,7 @@ import {} from "../lib/browser-polyfill"
 import {} from "../lib/log"
 import {} from "../lib/include"
 ;(async () => {
-  let [domain, tabId] = decodeURIComponent(location.hash.replace("#", "")).split(";")
+  const [domain, tabId] = decodeURIComponent(location.hash.replace("#", "")).split(";")
   const BASE = "https://noscript.net"
   await include(["/lib/punycode.js", "/common/Storage.js"])
   let { siteInfoConsent } = await Storage.get("sync", "siteInfoConsent")
@@ -13,12 +13,12 @@ import {} from "../lib/include"
     if (siteInfoConsent) {
       await Storage.set("sync", { siteInfoConsent })
     } else {
-      let current = await browser.tabs.getCurrent()
+      const current = await browser.tabs.getCurrent()
       await browser.tabs.update(parseInt(tabId), { active: true })
       await browser.tabs.remove(current.id)
       return
     }
   }
-  let ace = punycode.toASCII(domain)
+  const ace = punycode.toASCII(domain)
   location.href = `${BASE}/about/${domain};${ace}`
 })()

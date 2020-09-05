@@ -13,20 +13,20 @@ import "../lib/persistent-tabs"
 
   let policy = UI.policy
 
-  let version = browser.runtime.getManifest().version
+  const version = browser.runtime.getManifest().version
   document.querySelector("#version").textContent = _("Version", version)
   // simple general options
 
-  let opt = UI.wireOption
+  const opt = UI.wireOption
 
   opt("global", o => {
     if (o) {
       policy.enforced = !o.checked
       UI.updateSettings({ policy })
     }
-    let { enforced } = policy
-    let disabled = !enforced
-    for (let e of document.querySelectorAll(".enforcement_required")) {
+    const { enforced } = policy
+    const disabled = !enforced
+    for (const e of document.querySelectorAll(".enforcement_required")) {
       e.disabled = disabled
     }
     return disabled
@@ -49,7 +49,7 @@ import "../lib/persistent-tabs"
   opt("amnesticUpdates", "local")
 
   {
-    document.querySelector("#btn-reset").addEventListener("click", async () => {
+    document.querySelector("#btn-reset")!.addEventListener("click", async () => {
       if (confirm(_("reset_warning"))) {
         policy = new Policy()
         await UI.updateSettings({ policy, local: null, sync: null, xssUserChoices: {} })
@@ -57,9 +57,9 @@ import "../lib/persistent-tabs"
       }
     })
 
-    let fileInput = document.querySelector("#file-import")
+    const fileInput = document.querySelector("#file-import")!
     fileInput.onchange = () => {
-      let fr = new FileReader()
+      const fr = new FileReader()
       fr.onload = async () => {
         try {
           await UI.importSettings(fr.result)
@@ -71,17 +71,17 @@ import "../lib/persistent-tabs"
       fr.readAsText(fileInput.files[0])
     }
 
-    document.querySelector("#btn-import").addEventListener("click", async e => {
+    document.querySelector("#btn-import")!.addEventListener("click", async e => {
       fileInput.focus()
       fileInput.click()
       e.target.focus()
     })
 
-    document.querySelector("#btn-export").addEventListener("click", async e => {
-      let button = e.target
+    document.querySelector("#btn-export")!.addEventListener("click", async e => {
+      const button = e.target
       button.disabled = true
-      let settings = await UI.exportSettings()
-      let id = "noscriptExportFrame"
+      const settings = await UI.exportSettings()
+      const id = "noscriptExportFrame"
       let f = document.getElementById(id)
       if (f) f.remove()
       f = document.createElement("iframe")
@@ -91,8 +91,8 @@ import "../lib/persistent-tabs"
       f.style.top = "-999px"
       f.style.height = "1px"
       f.onload = () => {
-        let w = f.contentWindow
-        let a = w.document.querySelector("a")
+        const w = f.contentWindow
+        const a = w.document.querySelector("a")
         a.href = w.URL.createObjectURL(
           new w.Blob([settings], {
             type: "text/plain",
@@ -108,15 +108,15 @@ import "../lib/persistent-tabs"
   }
 
   {
-    let a = document.querySelector("#xssFaq a")
+    const a = document.querySelector("#xssFaq a")
     a.onclick = e => {
       e.preventDefault()
       browser.tabs.create({
         url: a.href,
       })
     }
-    let button = document.querySelector("#btn-delete-xss-choices")
-    let choices = UI.xssUserChoices
+    const button = document.querySelector("#btn-delete-xss-choices")
+    const choices = UI.xssUserChoices
     button.disabled = !choices || Object.keys(choices).length === 0
     button.onclick = () => {
       UI.updateSettings({
@@ -140,8 +140,8 @@ import "../lib/persistent-tabs"
 
   // PRESET CUSTOMIZER
   {
-    let parent = document.getElementById("presets")
-    let presetsUI = new UI.Sites(parent, {
+    const parent = document.getElementById("presets")
+    const presetsUI = new UI.Sites(parent, {
       DEFAULT: true,
       TRUSTED: true,
       UNTRUSTED: true,
@@ -149,14 +149,14 @@ import "../lib/persistent-tabs"
 
     presetsUI.render([""])
     window.setTimeout(() => {
-      let def = parent.querySelector('input.preset[value="DEFAULT"]')
+      const def = parent.querySelector('input.preset[value="DEFAULT"]')
       def.checked = true
       def.click()
     }, 10)
   }
 
   // SITES UI
-  let sitesUI = new UI.Sites(document.getElementById("sites"))
+  const sitesUI = new UI.Sites(document.getElementById("sites"))
   UI.onSettings = () => {
     policy = UI.policy
     sitesUI.render(policy.sites)
@@ -169,13 +169,13 @@ import "../lib/persistent-tabs"
     }
     sitesUI.render(policy.sites)
 
-    let newSiteForm = document.querySelector("#form-newsite")
-    let newSiteInput = newSiteForm.newsite
-    let button = newSiteForm.querySelector("button")
-    let canAdd = s => policy.get(s).siteMatch === null
+    const newSiteForm = document.querySelector("#form-newsite")
+    const newSiteInput = newSiteForm.newsite
+    const button = newSiteForm.querySelector("button")
+    const canAdd = s => policy.get(s).siteMatch === null
 
-    let validate = () => {
-      let site = newSiteInput.value.trim()
+    const validate = () => {
+      const site = newSiteInput.value.trim()
       button.disabled = !(Sites.isValid(site) && canAdd(site))
       sitesUI.filterSites(site)
     }
@@ -187,8 +187,8 @@ import "../lib/persistent-tabs"
       e => {
         e.preventDefault()
         e.stopPropagation()
-        let site = newSiteInput.value.trim()
-        let valid = Sites.isValid(site)
+        const site = newSiteInput.value.trim()
+        const valid = Sites.isValid(site)
         if (valid && canAdd(site)) {
           policy.set(site, policy.TRUSTED)
           UI.updateSettings({ policy })
@@ -208,11 +208,11 @@ import "../lib/persistent-tabs"
     if (!UI.local.debug) return
 
     // RAW POLICY EDITING (debug only)
-    let policyEditor = document.getElementById("policy")
+    const policyEditor = document.getElementById("policy")
     policyEditor.value = JSON.stringify(policy.dry(true), null, 2)
     if (!policyEditor.onchange)
       policyEditor.onchange = e => {
-        let ed = e.currentTarget
+        const ed = e.currentTarget
         try {
           UI.policy = policy = new Policy(JSON.parse(ed.value))
           UI.updateSettings({ policy })

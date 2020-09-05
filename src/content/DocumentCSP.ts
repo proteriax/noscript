@@ -7,7 +7,7 @@ class DocumentCSP {
   }
 
   apply(capabilities, embedding = CSP.isEmbedType(this.document.contentType)) {
-    let { document } = this
+    const { document } = this
     if (!capabilities.has("script")) {
       // safety net for XML (especially SVG) documents and synchronous scripts running
       // while inserting the CSP <meta> element.
@@ -22,21 +22,21 @@ class DocumentCSP {
       )
     }
 
-    let csp = this.builder
-    let blocker = csp.buildFromCapabilities(capabilities, embedding)
+    const csp = this.builder
+    const blocker = csp.buildFromCapabilities(capabilities, embedding)
     if (!blocker) return true
 
-    let createHTMLElement = tagName =>
+    const createHTMLElement = tagName =>
       document.createElementNS("http://www.w3.org/1999/xhtml", tagName)
 
-    let header = csp.asHeader(blocker)
-    let meta = createHTMLElement("meta")
+    const header = csp.asHeader(blocker)
+    const meta = createHTMLElement("meta")
     meta.setAttribute("http-equiv", header.name)
     meta.setAttribute("content", header.value)
-    let root = document.documentElement
+    const root = document.documentElement
 
-    let { head } = document
-    let parent = head || document.documentElement.appendChild(createHTMLElement("head"))
+    const { head } = document
+    const parent = head || document.documentElement.appendChild(createHTMLElement("head"))
 
     try {
       parent.insertBefore(meta, parent.firstElementChild)

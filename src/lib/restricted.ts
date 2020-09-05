@@ -1,7 +1,7 @@
 export {}
 {
   // see https://bugzilla.mozilla.org/show_bug.cgi?id=1415644
-  let domains = UA.isMozilla
+  const domains = UA.isMozilla
     ? [
         "accounts-static.cdn.mozilla.net",
         "accounts.firefox.com",
@@ -24,7 +24,7 @@ export {}
   function isRestrictedURL(u) {
     try {
       if (typeof u === "string") u = new URL(u)
-      let { protocol, hostname } = u
+      const { protocol, hostname } = u
       return (
         !/^(?:https?|file|data):$/.test(protocol) ||
         (protocol === "https:" && hostname && domains.includes(tld.normalize(hostname)))

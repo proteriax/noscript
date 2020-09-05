@@ -1,5 +1,5 @@
 {
-  let p1 = new Policy()
+  const p1 = new Policy()
   p1.set("noscript.net", new Permissions(["script"], true))
   p1.set("https://noscript.net", new Permissions(["script", "object"]))
   p1.set("maone.net", p1.TRUSTED.tempTwin)
@@ -12,13 +12,13 @@
   p1.set("192.168.69", p1.UNTRUSTED)
   // secureDomainKey should be "downgraded" by UTRUSTED, issue #126
   p1.set(Sites.secureDomainKey("evil.com"), p1.UNTRUSTED)
-  let p2 = new Policy(p1.dry())
+  const p2 = new Policy(p1.dry())
   debug("p1", JSON.stringify(p1.dry()))
   debug("p2", JSON.stringify(p2.dry()))
-  let onionSecureCurrent = Sites.onionSecure
+  const onionSecureCurrent = Sites.onionSecure
   Sites.onionSecure = true
   p1.set("http://some.onion", p1.TRUSTED)
-  for (let t of [
+  for (const t of [
     () => p2.can("https://noscript.net"),
     () => !p2.can("http://noscript.net"),
     () => p2.can("https://noscript.net", "object"),

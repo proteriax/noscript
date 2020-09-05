@@ -1,4 +1,5 @@
 export {}
+
 function onScriptDisabled() {
   if (document.readyState === "loading") {
     window.addEventListener("DOMContentLoaded", e => onScriptDisabled())
@@ -6,11 +7,13 @@ function onScriptDisabled() {
   }
   onScriptDisabled = () => {}
   let refresh = false
-  for (let noscript of document.querySelectorAll("noscript")) {
+  for (const noscript of document.querySelectorAll("noscript")) {
     // force show NOSCRIPT elements content
-    let replacement = document.createRange().createContextualFragment(noscript.innerHTML)
+    const replacement = document
+      .createRange()
+      .createContextualFragment(noscript.innerHTML)
     // emulate meta-refresh
-    for (let meta of replacement.querySelectorAll('meta[http-equiv="refresh"]')) {
+    for (const meta of replacement.querySelectorAll('meta[http-equiv="refresh"]')) {
       refresh = true
       document.head.appendChild(meta)
       console.log(`State %s, emulating`, document.readyState, meta)
@@ -22,9 +25,9 @@ function onScriptDisabled() {
     noscript.replaceWith(replacement)
   }
   if (refresh) {
-    let html = document.documentElement.outerHTML
-    let rewrite = () => {
-      let document = window.wrappedJSObject
+    const html = document.documentElement.outerHTML
+    const rewrite = () => {
+      const document = window.wrappedJSObject
         ? window.wrappedJSObject.document
         : window.document
       document.open()
@@ -40,7 +43,7 @@ function onScriptDisabled() {
     }
   }
   {
-    let eraser = {
+    const eraser = {
       tapped: null,
       delKey: false,
     }
@@ -63,11 +66,11 @@ function onScriptDisabled() {
         if (el && ev.keyCode === 46) {
           eraser.tapped = null
           eraser.delKey = true
-          let doc = el.ownerDocument
-          let w = doc.defaultView
+          const doc = el.ownerDocument
+          const w = doc.defaultView
           if (w.getSelection().isCollapsed) {
-            let root = doc.body || doc.documentElement
-            let posRx = /^(?:absolute|fixed)$/
+            const root = doc.body || doc.documentElement
+            const posRx = /^(?:absolute|fixed)$/
             do {
               if (posRx.test(w.getComputedStyle(el, "").position)) {
                 ;(eraser.tapped = el.parentNode).removeChild(el)

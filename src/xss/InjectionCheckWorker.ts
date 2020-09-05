@@ -1,12 +1,12 @@
-let include = src => {
+const include = src => {
   if (Array.isArray(src)) importScripts(...src)
   else importScripts(src)
 }
 
-let XSS = {}
+const XSS = {}
 include("/lib/log.js")
 
-for (let logType of ["log", "debug", "error"]) {
+for (const logType of ["log", "debug", "error"]) {
   this[logType] = (...log) => {
     postMessage({ log, logType })
   }
@@ -20,13 +20,13 @@ Entities = {
 }
 
 {
-  let timingsMap = new Map()
+  const timingsMap = new Map()
 
-  let Handlers = {
+  const Handlers = {
     async check({ xssReq, skip }) {
-      let { destUrl, unparsedRequest: request, debugging } = xssReq
-      let { skipParams, skipRx } = skip
-      let ic = new (await XSS.InjectionChecker)()
+      const { destUrl, unparsedRequest: request, debugging } = xssReq
+      const { skipParams, skipRx } = skip
+      const ic = new (await XSS.InjectionChecker)()
 
       if (debugging) {
         ic.logEnabled = true
@@ -39,18 +39,18 @@ Entities = {
         debug = () => {}
       }
 
-      let { timing } = ic
+      const { timing } = ic
       timingsMap.set(request.requestId, timing)
       timing.fatalTimeout = true
 
-      let postInjection =
+      const postInjection =
         xssReq.isPost &&
         request.requestBody &&
         request.requestBody.formData &&
         (await ic.checkPost(request.requestBody.formData, skipParams))
 
       let protectName = ic.nameAssignment
-      let urlInjection = await ic.checkUrl(destUrl, skipRx)
+      const urlInjection = await ic.checkUrl(destUrl, skipRx)
       protectName = protectName || ic.nameAssignment
       if (timing.tooLong) {
         log("[XSS] Long check (%s ms) - %s", timing.elapsed, JSON.stringify(xssReq))
@@ -70,7 +70,7 @@ Entities = {
     },
 
     requestDone({ requestId }) {
-      let timing = timingsMap.get(requestId)
+      const timing = timingsMap.get(requestId)
       if (timing) {
         timing.interrupted = true
         timingsMap.delete(requestId)
@@ -79,7 +79,7 @@ Entities = {
   }
 
   onmessage = async e => {
-    let msg = e.data
+    const msg = e.data
     if (msg.handler in Handlers)
       try {
         await Handlers[msg.handler](msg)

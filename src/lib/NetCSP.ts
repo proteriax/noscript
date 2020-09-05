@@ -7,7 +7,7 @@ class NetCSP extends CSP {
   }
 
   isMine(header) {
-    let { name, value } = header
+    const { name, value } = header
     return (
       name.toLowerCase() === CSP.headerName &&
       value.split(/,\s*/).some(v => v.startsWith(this.start))
@@ -15,7 +15,7 @@ class NetCSP extends CSP {
   }
 
   unmergeExtras(header) {
-    let { name, value } = header
+    const { name, value } = header
     return value
       .split(/,\s*/)
       .filter(v => !v.startsWith(this.start))

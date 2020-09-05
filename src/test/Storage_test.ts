@@ -1,41 +1,41 @@
 export {}
-let makeBigObj = propsNum => {
-  let bigObj = {}
+const makeBigObj = propsNum => {
+  const bigObj = {}
   for (let j = propsNum; j-- > 0; ) {
-    let x = "0000".concat(j.toString(16)).slice(-4)
+    const x = "0000".concat(j.toString(16)).slice(-4)
     bigObj[`k${x}`] = `v${x}`
   }
   log("[TEST] created bigObj %s JSON characters long.", JSON.stringify(bigObj).length)
   return bigObj
 }
-let HUGE_SIZE = 16000,
+const HUGE_SIZE = 16000,
   BIG_SIZE = 1000
-let bigObject = makeBigObj(BIG_SIZE)
-let hugeObject = makeBigObj(HUGE_SIZE)
-let items = { small1: { x: 1, y: 2 }, bigObject, small2: { k: 3, j: 4 } }
-let keys = Object.keys(items)
+const bigObject = makeBigObj(BIG_SIZE)
+const hugeObject = makeBigObj(HUGE_SIZE)
+const items = { small1: { x: 1, y: 2 }, bigObject, small2: { k: 3, j: 4 } }
+const keys = Object.keys(items)
 keys.push("hugeObject")
 
-let eq = async (key, prop, val) => {
-  let current = (await Storage.get("sync", key))[key]
-  let ok = current[prop] === val
+const eq = async (key, prop, val) => {
+  const current = (await Storage.get("sync", key))[key]
+  const ok = current[prop] === val
   log("[TEST] sync.%s.%s %s %s\n(%o)", key, prop, ok ? "==" : "!=", val, current)
   return ok
 }
 
-let fallbackOrChunked = async key => {
-  let fallback = await Storage.hasLocalFallback(key)
-  let chunked = await Storage.isChunked(key)
+const fallbackOrChunked = async key => {
+  const fallback = await Storage.hasLocalFallback(key)
+  const chunked = await Storage.isChunked(key)
   log("[TEST] %s fallback: %s, chunked: %s", key, fallback, chunked)
   return fallback ? !chunked : chunked
 }
 
-let checkSize = async (key, size) =>
+const checkSize = async (key, size) =>
   Object.keys((await Storage.get("sync", key))[key]).length === size
 
 let all
 ;(async () => {
-  for (let t of [
+  for (const t of [
     async () => {
       await Storage.set("sync", items)
       await Storage.set("sync", { hugeObject }) // fallback to local
@@ -58,15 +58,15 @@ let all
     async () => await eq("bigObject", "k0000", "v0000"),
     async () => await eq("hugeObject", "k0001", "v0001"),
     async () => {
-      let key = "bigObject"
-      let wasChunked = await Storage.isChunked(key)
+      const key = "bigObject"
+      const wasChunked = await Storage.isChunked(key)
       await Storage.set("sync", { [key]: { tiny: "prop" } })
       return wasChunked && !(await Storage.isChunked(key))
     },
     async () => eq("bigObject", "tiny", "prop"),
     async () => {
       await Storage.remove("sync", keys)
-      let myItems = await Storage.get("sync", keys)
+      const myItems = await Storage.get("sync", keys)
       return Object.keys(myItems).length === 0
     },
   ]) {

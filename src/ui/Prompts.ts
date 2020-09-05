@@ -1,61 +1,67 @@
-var Prompts = (() => {
+const Prompts = (() => {
+  let promptData
+  const backlog = []
 
-
-  var promptData;
-  var backlog = [];
   class WindowManager {
     async open(data) {
-      promptData = data;
-      this.close();
-      let {width, height} = data.features;
-      let options = {
+      promptData = data
+      this.close()
+      const { width, height } = data.features
+      const options = {
         url: browser.extension.getURL("ui/prompt.html"),
         type: "panel",
         width,
         height,
-      };
-      if (UA.isMozilla) {
-        options.allowScriptsToClose = true;
       }
-      this.currentWindow = await browser.windows.create(options);
+      if (UA.isMozilla) {
+        options.allowScriptsToClose = true
+      }
+      this.currentWindow = await browser.windows.create(options)
       // work around for https://bugzilla.mozilla.org/show_bug.cgi?id=1330882
-      let {left, top, width: cw, height: ch} = this.currentWindow;
-      if (width && height && cw !== width || ch !== height) {
-        left += Math.round((cw - width) / 2);
-        top += Math.round((ch - height) / 2);
-        for (let attempts = 2; attempts-- > 0;) // top gets set only 2nd time, moz bug?
-          await browser.windows.update(this.currentWindow.id,
-              {left, top, width, height});
+      let { left, top, width: cw, height: ch } = this.currentWindow
+      if ((width && height && cw !== width) || ch !== height) {
+        left += Math.round((cw - width) / 2)
+        top += Math.round((ch - height) / 2)
+        for (
+          let attempts = 2;
+          attempts-- > 0; // top gets set only 2nd time, moz bug?
+
+        )
+          await browser.windows.update(this.currentWindow.id, {
+            left,
+            top,
+            width,
+            height,
+          })
       }
     }
+
     async close() {
       if (this.currentWindow) {
         try {
-          await browser.windows.remove(this.currentWindow.id);
+          await browser.windows.remove(this.currentWindow.id)
         } catch (e) {
-          debug(e);
+          debug(e)
         }
-        this.currentWindow = null;
+        this.currentWindow = null
       }
     }
 
     async focus() {
       if (this.currentWindow) {
         try {
-          await browser.windows.update(this.currentWindow.id,
-            {
-              focused: true,
-            }
-          );
+          await browser.windows.update(this.currentWindow.id, {
+            focused: true,
+          })
         } catch (e) {
-          error(e, "Focusing popup window");
+          error(e, "Focusing popup window")
         }
       }
     }
   }
 
-  var winMan = new WindowManager();
-  var Prompts = {
+  const winMan = new WindowManager()
+  const Prompts = {
     DEFAULTS: {
       title: "",
       message: "Proceed?",
@@ -68,9 +74,9 @@ var Prompts = (() => {
       alwaysOnTop: true,
     },
     async prompt(features) {
-      features = Object.assign({}, this.DEFAULTS, features || {});
+      features = Object.assign({}, this.DEFAULTS, features || {})
       return new Promise((resolve, reject) => {
-        let data = {
+        const data = {
           features,
           result: {
             button: -1,
@@ -78,37 +84,36 @@ var Prompts = (() => {
             option: null,
           },
           done() {
-            this.done = () => {};
-            winMan.close();
-            resolve(this.result);
+            this.done = () => {}
+            winMan.close()
+            resolve(this.result)
             if (backlog.length) {
-              winMan.open(backlog.shift());
+              winMan.open(backlog.shift())
             } else {
-              promptData = null;
+              promptData = null
             }
-          }
-        };
+          },
+        }
         if (promptData) {
-          backlog.push(data);
-          switch(promptData.features.multiple) {
+          backlog.push(data)
+          switch (promptData.features.multiple) {
             case "focus":
-              winMan.focus();
+              winMan.focus()
             case "queue":
-            break;
+              break
             default:
-              promptData.done();
+              promptData.done()
           }
         } else {
-          winMan.open(data);
+          winMan.open(data)
         }
-      });
+      })
     },
 
     get promptData() {
-      return promptData;
-    }
+      return promptData
+    },
   }
 
-  return Prompts;
-
-})();
+  return Prompts
+})()

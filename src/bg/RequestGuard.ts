@@ -1,11 +1,11 @@
 export {}
 
-var RequestGuard = (() => {
+const RequestGuard = (() => {
   const VERSION_LABEL = `NoScript ${browser.runtime.getManifest().version}`
   browser.browserAction.setTitle({ title: VERSION_LABEL })
   const CSP_REPORT_URI = "https://noscript-csp.invalid/__NoScript_Probe__/"
   const CSP_MARKER = "noscript-marker"
-  let csp = new ReportingCSP(CSP_MARKER, CSP_REPORT_URI)
+  const csp = new ReportingCSP(CSP_MARKER, CSP_REPORT_URI)
   const policyTypesMap = {
     main_frame: "",
     sub_frame: "frame",
@@ -35,7 +35,7 @@ var RequestGuard = (() => {
       }
     },
     hasOrigin(tabId, origin) {
-      let records = this.map.get(tabId)
+      const records = this.map.get(tabId)
       return records && records.origins.has(origin)
     },
     initTab(tabId, records = this.newRecords()) {
@@ -45,12 +45,12 @@ var RequestGuard = (() => {
     },
     _record(request, what, optValue) {
       let { tabId, frameId, type, url, documentUrl } = request
-      let policyType = policyTypesMap[type] || type
-      let requestKey = Policy.requestKey(url, policyType, documentUrl)
-      let map = this.map
-      let records = map.has(tabId) ? map.get(tabId) : this.initTab(tabId)
+      const policyType = policyTypesMap[type] || type
+      const requestKey = Policy.requestKey(url, policyType, documentUrl)
+      const map = this.map
+      const records = map.has(tabId) ? map.get(tabId) : this.initTab(tabId)
       if (what === "noscriptFrame" && type !== "object") {
-        let nsf = records.noscriptFrames
+        const nsf = records.noscriptFrames
         nsf[frameId] = optValue
         what = optValue ? "blocked" : "allowed"
         if (frameId === 0) {
@@ -61,7 +61,7 @@ var RequestGuard = (() => {
       if (type.endsWith("frame")) {
         records.origins.add(Sites.origin(url))
       }
-      let collection = records[what]
+      const collection = records[what]
       if (collection) {
         if (type in collection) {
           if (!collection[type].includes(requestKey)) {
@@ -74,9 +74,9 @@ var RequestGuard = (() => {
       return records
     },
     record(request, what, optValue) {
-      let { tabId } = request
+      const { tabId } = request
       if (tabId < 0) return
-      let records = this._record(request, what, optValue)
+      const records = this._record(request, what, optValue)
       if (records) {
         this.updateTab(request.tabId)
       }
@@ -87,7 +87,7 @@ var RequestGuard = (() => {
       if (this._pendingTabs.size === 0) {
         window.setTimeout(() => {
           // clamp UI updates
-          for (let tabId of this._pendingTabs) {
+          for (const tabId of this._pendingTabs) {
             this._updateTabNow(tabId)
           }
           this._pendingTabs.clear()
@@ -97,15 +97,15 @@ var RequestGuard = (() => {
     },
     _updateTabNow(tabId) {
       this._pendingTabs.delete(tabId)
-      let records = this.map.get(tabId) || this.initTab(tabId)
-      let { allowed, blocked, noscriptFrames } = records
-      let topAllowed = !(noscriptFrames && noscriptFrames[0])
+      const records = this.map.get(tabId) || this.initTab(tabId)
+      const { allowed, blocked, noscriptFrames } = records
+      const topAllowed = !(noscriptFrames && noscriptFrames[0])
       let numAllowed = 0,
         numBlocked = 0,
         sum = 0
-      let report = this.types
+      const report = this.types
         .map(t => {
-          let a = (allowed[t] && allowed[t].length) || 0,
+          const a = (allowed[t] && allowed[t].length) || 0,
             b = (blocked[t] && blocked[t].length) || 0,
             s = a + b
           ;(numAllowed += a), (numBlocked += b), (sum += s)
@@ -113,8 +113,8 @@ var RequestGuard = (() => {
         })
         .filter(s => s)
         .join("\n")
-      let enforced = ns.isEnforced(tabId)
-      let icon = enforced
+      const enforced = ns.isEnforced(tabId)
+      const icon = enforced
         ? topAllowed
           ? numBlocked
             ? "part"
@@ -123,8 +123,8 @@ var RequestGuard = (() => {
           ? "sub"
           : "no" // not topAllowed
         : "global" // not enforced
-      let showBadge = ns.local.showCountBadge && numBlocked > 0
-      let browserAction = browser.browserAction
+      const showBadge = ns.local.showCountBadge && numBlocked > 0
+      const browserAction = browser.browserAction
       if (!browserAction.setIcon) {
         // Fennec
         browserAction.setTitle({ tabId, title: `NoScript (${numBlocked})` })
@@ -159,13 +159,13 @@ var RequestGuard = (() => {
     },
     recordAll(tabId, seen) {
       if (seen) {
-        let records = TabStatus.map.get(tabId)
+        const records = TabStatus.map.get(tabId)
         if (records) {
           records.allowed = {}
           records.blocked = {}
         }
-        for (let thing of seen) {
-          let { request, allowed } = thing
+        for (const thing of seen) {
+          const { request, allowed } = thing
           request.tabId = tabId
           debug(`Recording`, request)
           TabStatus._record(request, allowed ? "allowed" : "blocked")
@@ -178,8 +178,8 @@ var RequestGuard = (() => {
       }
     },
     async onActivatedTab(info) {
-      let { tabId } = info
-      let seen = await ns.collectSeen(tabId)
+      const { tabId } = info
+      const seen = await ns.collectSeen(tabId)
       TabStatus.recordAll(tabId, seen)
     },
     onRemovedTab(tabId) {
@@ -188,15 +188,15 @@ var RequestGuard = (() => {
   }
   browser.tabs.onActivated.addListener(TabStatus.onActivatedTab)
   browser.tabs.onRemoved.addListener(TabStatus.onRemovedTab)
-  let messageHandler = {
+  const messageHandler = {
     async pageshow(message, sender) {
       TabStatus.recordAll(sender.tab.id, message.seen)
       return true
     },
     violation({ url, type }, sender) {
-      let tabId = sender.tab.id
-      let { frameId } = sender
-      let r = {
+      const tabId = sender.tab.id
+      const { frameId } = sender
+      const r = {
         url,
         type,
         tabId,
@@ -210,10 +210,10 @@ var RequestGuard = (() => {
       }
     },
     async blockedObjects(message, sender) {
-      let { url, documentUrl, policyType } = message
-      let TAG = `<${policyType.toUpperCase()}>`
+      const { url, documentUrl, policyType } = message
+      const TAG = `<${policyType.toUpperCase()}>`
       let origin = Sites.origin(url)
-      let { siteKey } = Sites.parse(url)
+      const { siteKey } = Sites.parse(url)
       let options
       if (siteKey === origin) {
         origin = new URL(url).protocol
@@ -223,8 +223,8 @@ var RequestGuard = (() => {
         { label: _("allowLocal", origin) },
         { label: _("CollapseBlockedObjects") },
       ]
-      let t = u => `${TAG}@${u}`
-      let ret = await Prompts.prompt({
+      const t = u => `${TAG}@${u}`
+      const ret = await Prompts.prompt({
         title: _("BlockedObjects"),
         message: _("allowLocal", TAG),
         options,
@@ -234,12 +234,12 @@ var RequestGuard = (() => {
       if (ret.option === 2) {
         return { collapse: "all" }
       }
-      let key = [siteKey, origin][ret.option || 0]
+      const key = [siteKey, origin][ret.option || 0]
       if (!key) return
       let { siteMatch, contextMatch, perms } = ns.policy.get(key, documentUrl)
-      let { capabilities } = perms
+      const { capabilities } = perms
       if (!capabilities.has(policyType)) {
-        let temp = sender.tab.incognito // we don't want to store in PBM
+        const temp = sender.tab.incognito // we don't want to store in PBM
         perms = new Permissions(new Set(capabilities), temp)
         perms.capabilities.add(policyType)
         /* TODO: handle contextual permissions
@@ -257,9 +257,9 @@ var RequestGuard = (() => {
   }
   const Content = {
     async reportTo(request, allowed, policyType) {
-      let { requestId, tabId, frameId, type, url, documentUrl, originUrl } = request
-      let pending = pendingRequests.get(requestId) // null if from a CSP report
-      let initialUrl = pending ? pending.initialUrl : request.url
+      const { requestId, tabId, frameId, type, url, documentUrl, originUrl } = request
+      const pending = pendingRequests.get(requestId) // null if from a CSP report
+      const initialUrl = pending ? pending.initialUrl : request.url
       request = {
         key: Policy.requestKey(
           url,
@@ -280,14 +280,14 @@ var RequestGuard = (() => {
           documentUrl.startsWith("https://")
         ) {
           // service worker / importScripts()?
-          let payload = {
+          const payload = {
             request,
             allowed,
             policyType,
             serviceWorker: Sites.origin(documentUrl),
           }
-          let recipient = { frameId: 0 }
-          for (let tab of await browser.tabs.query({
+          const recipient = { frameId: 0 }
+          for (const tab of await browser.tabs.query({
             url: ["http://*/*", "https://*/*"],
           })) {
             recipient.tabId = tab.id
@@ -331,9 +331,9 @@ var RequestGuard = (() => {
   }
   const pendingRequests = new Map()
   function initPendingRequest(request) {
-    let { requestId, url } = request
-    let redirected = pendingRequests.get(requestId)
-    let initialUrl = redirected ? redirected.initialUrl : url
+    const { requestId, url } = request
+    const redirected = pendingRequests.get(requestId)
+    const initialUrl = redirected ? redirected.initialUrl : url
     pendingRequests.set(requestId, {
       initialUrl,
       url,
@@ -343,7 +343,7 @@ var RequestGuard = (() => {
     return redirected
   }
 
-  let normalizeRequest = UA.isMozilla
+  const normalizeRequest = UA.isMozilla
     ? () => {}
     : request => {
         if ("initiator" in request && !("originUrl" in request)) {
@@ -355,14 +355,14 @@ var RequestGuard = (() => {
       }
 
   function intersectCapabilities(perms, request) {
-    let { frameId, frameAncestors, tabId } = request
+    const { frameId, frameAncestors, tabId } = request
     if (frameId !== 0 && ns.sync.cascadeRestrictions) {
       let topUrl =
         frameAncestors &&
         frameAncestors.length &&
         frameAncestors[frameAncestors.length - 1].url
       if (!topUrl) {
-        let tab = TabCache.get(tabId)
+        const tab = TabCache.get(tabId)
         if (tab) topUrl = tab.url
       }
       if (topUrl) {
@@ -378,13 +378,13 @@ var RequestGuard = (() => {
     onBeforeRequest(request) {
       normalizeRequest(request)
       try {
-        let redirected = initPendingRequest(request)
-        let { policy } = ns
-        let { type } = request
+        const redirected = initPendingRequest(request)
+        const { policy } = ns
+        const { type } = request
         if (type in policyTypesMap) {
-          let policyType = policyTypesMap[type]
+          const policyType = policyTypesMap[type]
           let { url, originUrl, documentUrl, tabId } = request
-          let isFetch = "fetch" === policyType
+          const isFetch = "fetch" === policyType
 
           if (
             (isFetch || "frame" === policyType) &&
@@ -410,7 +410,7 @@ var RequestGuard = (() => {
           let allowed = Sites.isInternal(url)
           if (!allowed) {
             if (tabId < 0 && documentUrl && documentUrl.startsWith("https://")) {
-              let origin = Sites.origin(documentUrl)
+              const origin = Sites.origin(documentUrl)
               allowed = [...ns.unrestrictedTabs].some(tabId =>
                 TabStatus.hasOrigin(tabId, origin)
               )
@@ -418,15 +418,15 @@ var RequestGuard = (() => {
               allowed = !ns.isEnforced(tabId)
             }
             if (!allowed) {
-              let capabilities = intersectCapabilities(
+              const capabilities = intersectCapabilities(
                 policy.get(url, documentUrl).perms,
                 request
               )
               allowed = !policyType || capabilities.has(policyType)
               if (allowed && request._dataUrl && type.endsWith("frame")) {
-                let blocker = csp.buildFromCapabilities(capabilities)
+                const blocker = csp.buildFromCapabilities(capabilities)
                 if (blocker) {
-                  let redirectUrl = CSP.patchDataURI(request._dataUrl, blocker)
+                  const redirectUrl = CSP.patchDataURI(request._dataUrl, blocker)
                   if (redirectUrl !== request._dataUrl) {
                     return { redirectUrl }
                   }
@@ -473,9 +473,9 @@ var RequestGuard = (() => {
       ) {
         debug("Resetting CSP Headers")
         pending.resetCachedCSP = true
-        let { responseHeaders } = request
-        let headersCount = responseHeaders.length
-        let purged = false
+        const { responseHeaders } = request
+        const headersCount = responseHeaders.length
+        const purged = false
         responseHeaders.forEach((h, index) => {
           if (csp.isMine(h)) {
             responseHeaders.splice(index, 1)
@@ -493,12 +493,12 @@ var RequestGuard = (() => {
       let headersModified = false
 
       pending.headersProcessed = true
-      let { url, documentUrl, tabId, responseHeaders, type } = request
-      let isMainFrame = type === "main_frame"
+      const { url, documentUrl, tabId, responseHeaders, type } = request
+      const isMainFrame = type === "main_frame"
       try {
         let capabilities
         if (ns.isEnforced(tabId)) {
-          let policy = ns.policy
+          const policy = ns.policy
           let perms = policy.get(url, documentUrl).perms
           if (isMainFrame) {
             if (policy.autoAllowTop && perms === policy.DEFAULT) {
@@ -517,7 +517,7 @@ var RequestGuard = (() => {
             capabilities && !capabilities.has("script")
           )
         }
-        let header = csp.patchHeaders(responseHeaders, capabilities)
+        const header = csp.patchHeaders(responseHeaders, capabilities)
         /*
         // Uncomment me to disable networking-level CSP for debugging purposes
         header = null;
@@ -543,11 +543,11 @@ var RequestGuard = (() => {
     onResponseStarted(request) {
       normalizeRequest(request)
       debug("onResponseStarted", request)
-      let { requestId, url, tabId, frameId, type } = request
+      const { requestId, url, tabId, frameId, type } = request
       if (type === "main_frame") {
         TabStatus.initTab(tabId)
       }
-      let scriptBlocked = request.responseHeaders.some(
+      const scriptBlocked = request.responseHeaders.some(
         h => csp.isMine(h) && csp.blocks(h.value, "script")
       )
       debug(
@@ -558,7 +558,7 @@ var RequestGuard = (() => {
         frameId
       )
       TabStatus.record(request, "noscriptFrame", scriptBlocked)
-      let pending = pendingRequests.get(requestId)
+      const pending = pendingRequests.get(requestId)
       if (pending) {
         pending.scriptBlocked = scriptBlocked
         if (
@@ -578,11 +578,11 @@ var RequestGuard = (() => {
       }
     },
     onCompleted(request) {
-      let { requestId } = request
+      const { requestId } = request
       if (pendingRequests.has(requestId)) {
-        let r = pendingRequests.get(requestId)
+        const r = pendingRequests.get(requestId)
         pendingRequests.delete(requestId)
-        for (let callback of r.onCompleted) {
+        for (const callback of r.onCompleted) {
           try {
             callback(request, r)
           } catch (e) {
@@ -606,17 +606,17 @@ var RequestGuard = (() => {
     })
   }
 
-  let utf8Decoder = new TextDecoder("UTF-8")
+  const utf8Decoder = new TextDecoder("UTF-8")
   function onViolationReport(request) {
     try {
-      let text = utf8Decoder.decode(request.requestBody.raw[0].bytes)
+      const text = utf8Decoder.decode(request.requestBody.raw[0].bytes)
       if (text.includes(`"inline"`)) return ABORT
-      let report = JSON.parse(text)["csp-report"]
-      let originalPolicy = report["original-policy"]
+      const report = JSON.parse(text)["csp-report"]
+      const originalPolicy = report["original-policy"]
       debug("CSP report", report)
-      let blockedURI = report["blocked-uri"]
+      const blockedURI = report["blocked-uri"]
       if (blockedURI && blockedURI !== "self") {
-        let r = fakeRequestFromCSP(report, request)
+        const r = fakeRequestFromCSP(report, request)
         if (!/:/.test(r.url)) r.url = request.documentUrl
         Content.reportTo(r, false, policyTypesMap[r.type])
         TabStatus.record(r, "blocked")
@@ -624,7 +624,7 @@ var RequestGuard = (() => {
         report["violated-directive"] === "script-src" &&
         originalPolicy.includes("; script-src 'none'")
       ) {
-        let r = fakeRequestFromCSP(report, request)
+        const r = fakeRequestFromCSP(report, request)
         Content.reportTo(r, false, "script") // NEW
         TabStatus.record(r, "noscriptFrame", true)
       }
@@ -636,17 +636,17 @@ var RequestGuard = (() => {
   const RequestGuard = {
     async start() {
       Messages.addHandler(messageHandler)
-      let wr = browser.webRequest
-      let listen = (what, ...args) => wr[what].addListener(listeners[what], ...args)
-      let allUrls = ["<all_urls>"]
-      let docTypes = ["main_frame", "sub_frame", "object"]
-      let filterDocs = { urls: allUrls, types: docTypes }
-      let filterAll = { urls: allUrls }
+      const wr = browser.webRequest
+      const listen = (what, ...args) => wr[what].addListener(listeners[what], ...args)
+      const allUrls = ["<all_urls>"]
+      const docTypes = ["main_frame", "sub_frame", "object"]
+      const filterDocs = { urls: allUrls, types: docTypes }
+      const filterAll = { urls: allUrls }
       listen("onBeforeRequest", filterAll, ["blocking"])
 
       let mergingCSP = "getBrowserInfo" in browser.runtime
       if (mergingCSP) {
-        let { vendor, version } = await browser.runtime.getBrowserInfo()
+        const { vendor, version } = await browser.runtime.getBrowserInfo()
         mergingCSP = vendor === "Mozilla" && parseInt(version) >= 77
       }
       if (mergingCSP) {
@@ -654,9 +654,8 @@ var RequestGuard = (() => {
         // we need to cleanup our own cached headers in a dedicated listener :(
         // see also https://trac.torproject.org/projects/tor/ticket/34305
         wr.onHeadersReceived.addListener(
-          (listeners.onHeadersReceived.resetCSP = request => {
-            return listeners.onHeadersReceived(request)
-          }),
+          (listeners.onHeadersReceived.resetCSP = request =>
+            listeners.onHeadersReceived(request)),
           filterDocs,
           ["blocking", "responseHeaders"]
         )
@@ -667,10 +666,10 @@ var RequestGuard = (() => {
       ;(listeners.onHeadersReceivedLast = new LastListener(
         wr.onHeadersReceived,
         request => {
-          let { requestId, responseHeaders } = request
-          let pending = pendingRequests.get(request.requestId)
+          const { requestId, responseHeaders } = request
+          const pending = pendingRequests.get(request.requestId)
           if (pending && pending.headersProcessed) {
-            let { cspHeader } = pending
+            const { cspHeader } = pending
             if (cspHeader) {
               responseHeaders.push(cspHeader)
               return { responseHeaders }
@@ -697,8 +696,8 @@ var RequestGuard = (() => {
       TabStatus.probe()
     },
     stop() {
-      let wr = browser.webRequest
-      for (let [name, listener] of Object.entries(listeners)) {
+      const wr = browser.webRequest
+      for (const [name, listener] of Object.entries(listeners)) {
         if (typeof listener === "function") {
           wr[name].removeListener(listener)
         } else if (listener instanceof LastListener) {

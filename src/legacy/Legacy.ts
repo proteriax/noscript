@@ -1,9 +1,9 @@
 export {}
 
-var Legacy = {
+const Legacy = {
   async init() {
-    let migrated = (await browser.storage.local.get("legacyBackup")).legacyBackup
-    let real = await this.import(migrated)
+    const migrated = (await browser.storage.local.get("legacyBackup")).legacyBackup
+    const real = await this.import(migrated)
     this.init = async () => real
     return real
   },
@@ -24,7 +24,7 @@ var Legacy = {
   },
 
   getRxPref(name, parseRx = Legacy.RX.multi, flags, def) {
-    let source = this.getPref(name, def)
+    const source = this.getPref(name, def)
     if (source instanceof RegExp) return source
     try {
       return parseRx(source, flags)
@@ -68,7 +68,7 @@ var Legacy = {
   migratePolicy() {
     // here we normalize both NS whitelist and blacklist, getting finally rid of
     // the legacy of CAPS mandating protocols for top-level domains
-    let [trusted, untrusted] = this.extractLists([
+    const [trusted, untrusted] = this.extractLists([
       this.migrated.whitelist,
       this.getPref("untrusted", ""),
     ])
@@ -79,7 +79,7 @@ var Legacy = {
         .split(/\s+/)
         .filter(s => !s.includes(":"))
         .forEach(s => {
-          let idx = trusted.indexOf(s)
+          const idx = trusted.indexOf(s)
           if (idx !== -1) {
             trusted[idx] = Sites.secureDomainKey(s)
           }
@@ -87,7 +87,7 @@ var Legacy = {
     }
 
     let DEFAULT = new Permissions(["other"])
-    let { capabilities } = DEFAULT
+    const { capabilities } = DEFAULT
     // let's semplify object permissions now that almost everything is
     // either blacklisted or C2P by the browser
     if (
@@ -98,23 +98,23 @@ var Legacy = {
       capabilities.add("object")
     }
 
-    let prefMap = {
+    const prefMap = {
       Fonts: "font",
       Frames: "frame",
       IFrames: "frame",
       Media: "media",
       WebGL: "webgl",
     }
-    for (let [legacy, current] of Object.entries(prefMap)) {
+    for (const [legacy, current] of Object.entries(prefMap)) {
       if (!this.getPref(`forbid${legacy}`, true)) capabilities.add(current)
     }
 
-    let TRUSTED = new Permissions(
+    const TRUSTED = new Permissions(
       new Set(this.getPref("contentBlocker") ? capabilities : Permissions.ALL)
     )
     TRUSTED.capabilities.add("script").add("fetch")
 
-    let UNTRUSTED = new Permissions()
+    const UNTRUSTED = new Permissions()
     if (this.getPref("global")) {
       if (!this.getPref("alwaysBlockUntrustedContent")) {
         UNTRUSTED.capabilities = new Set(capabilities)
@@ -136,19 +136,19 @@ var Legacy = {
   },
 
   RX: {
-    simple: function (s, flags) {
-      var anchor = /\^/.test(flags)
+    simple(s, flags) {
+      const anchor = /\^/.test(flags)
       return new RegExp(
         anchor ? rxParsers.anchor(s) : s,
         anchor ? flags.replace(/\^/g, "") : flags
       )
     },
-    anchor: function (s) {
+    anchor(s) {
       return /^\^|\$$/.test(s) ? s : "^" + s + "$"
     },
-    multi: function (s, flags) {
-      var anchor = /\^/.test(flags)
-      var lines = s.split(anchor ? /\s+/ : /[\n\r]+/).filter(l => /\S/.test(l))
+    multi(s, flags) {
+      const anchor = /\^/.test(flags)
+      const lines = s.split(anchor ? /\s+/ : /[\n\r]+/).filter(l => /\S/.test(l))
       return new RegExp(
         (anchor ? lines.map(rxParsers.anchor) : lines).join("|"),
         anchor ? flags.replace(/\^/g, "") : flags

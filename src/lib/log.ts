@@ -1,6 +1,7 @@
 export {}
+
 {
-  let PREFIX =
+  const PREFIX =
     typeof browser === "object" ? `[${browser.runtime.getManifest().name}]` : ""
 
   let debugCount = 0

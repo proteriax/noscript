@@ -12,7 +12,7 @@ function ReportingCSP(marker, reportURI = "") {
       patchHeaders(responseHeaders, capabilities) {
         let header = null
         let blocker = capabilities && this.buildFromCapabilities(capabilities)
-        let extras = []
+        const extras = []
         responseHeaders.forEach((h, index) => {
           if (this.isMine(h)) {
             header = h
@@ -27,7 +27,7 @@ function ReportingCSP(marker, reportURI = "") {
             responseHeaders.splice(index, 1)
           } else if (blocker && /^(Location|Refresh)$/i.test(h.name)) {
             // neutralize any HTTP redirection to data: URLs, like Chromium
-            let url = /^R/i.test(h.name)
+            const url = /^R/i.test(h.name)
               ? h.value.replace(
                   /^[^,;]*[,;](?:\W*url[^=]*=)?[^!#$%&()*+,/:;=?@[\]\w.,~-]*/i,
                   ""

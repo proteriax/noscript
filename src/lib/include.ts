@@ -1,15 +1,15 @@
 export {}
-var include = (() => {
-  let _inclusions = new Map()
+const include = (() => {
+  const _inclusions = new Map()
 
   function scriptLoader(src) {
-    let script = document.createElement("script")
+    const script = document.createElement("script")
     script.src = src
     return script
   }
 
   function styleLoader(src) {
-    let style = document.createElement("link")
+    const style = document.createElement("link")
     style.rel = "stylesheet"
     style.type = "text/css"
     style.href = src
@@ -23,8 +23,8 @@ var include = (() => {
     }
     debug("Including", src)
 
-    let loading = new Promise((resolve, reject) => {
-      let inc = src.endsWith(".css") ? styleLoader(src) : scriptLoader(src)
+    const loading = new Promise((resolve, reject) => {
+      const inc = src.endsWith(".css") ? styleLoader(src) : scriptLoader(src)
       inc.onload = () => resolve(inc)
       inc.onerror = () => reject(new Error(`Failed to load ${src}`))
       document.head.appendChild(inc)

@@ -9,20 +9,22 @@ class Ver {
       this.parts = this.versionString.split(".")
     }
   }
+
   toString() {
     return this.versionString
   }
+
   compare(other) {
     if (!(other instanceof Ver)) other = new Ver(other)
-    let p1 = this.parts,
+    const p1 = this.parts,
       p2 = other.parts
-    let maxParts = Math.max(p1.length, p2.length)
+    const maxParts = Math.max(p1.length, p2.length)
     for (let j = 0; j < maxParts; j++) {
-      let s1 = p1[j] || "0"
-      let s2 = p2[j] || "0"
+      const s1 = p1[j] || "0"
+      const s2 = p2[j] || "0"
       if (s1 === s2) continue
-      let n1 = parseInt(s1)
-      let n2 = parseInt(s2)
+      const n1 = parseInt(s1)
+      const n2 = parseInt(s2)
       if (n1 > n2) return 1
       if (n1 < n2) return -1
       // if numeric part is the same, an alphabetic suffix decreases value
@@ -35,8 +37,9 @@ class Ver {
     }
     return 0
   }
+
   static is(ver1, op, ver2) {
-    let res = new Ver(ver1).compare(ver2)
+    const res = new Ver(ver1).compare(ver2)
 
     return (
       (op.includes("!=") && res !== 0) ||

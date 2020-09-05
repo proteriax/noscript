@@ -8,7 +8,7 @@ XSS.InjectionChecker = (async () => {
     "/xss/ASPIdiocy.js",
   ])
 
-  var { FlashIdiocy, ASPIdiocy } = XSS
+  const { FlashIdiocy, ASPIdiocy } = XSS
 
   const wordCharRx = /\w/g
 
@@ -53,21 +53,21 @@ XSS.InjectionChecker = (async () => {
       this.base64tested = []
     },
 
-    fuzzify: fuzzify,
+    fuzzify,
     syntax: new SyntaxChecker(),
-    _log: function (msg, iterations) {
+    _log(msg, iterations) {
       if (msg) msg = this._printable(msg)
       msg = `${msg} - TIME: ${this.timing.elapsed}`
       if (iterations) msg = `${msg} - ITER: ${iterations}`
       debug("[InjectionChecker]", msg)
     },
 
-    _printable: function (msg) {
-      return msg.toString().replace(/[^\u0020-\u007e]/g, function (s) {
-        return "{" + s.charCodeAt(0).toString(16) + "}"
-      })
+    _printable(msg) {
+      return msg
+        .toString()
+        .replace(/[^\u0020-\u007e]/g, s => "{" + s.charCodeAt(0).toString(16) + "}")
     },
-    log: function () {},
+    log() {},
     get logEnabled() {
       return this.log == this._log
     },
@@ -75,13 +75,13 @@ XSS.InjectionChecker = (async () => {
       this.log = v ? this._log : function () {}
     },
 
-    escalate: function (msg) {
+    escalate(msg) {
       this.log(msg)
       log("[InjectionChecker] ", msg)
     },
 
-    bb: function (brac, s, kets) {
-      for (var j = 3; j-- > 0; ) {
+    bb(brac, s, kets) {
+      for (let j = 3; j-- > 0; ) {
         s = brac + s + kets
         if (this.checkJSSyntax(s)) return true
       }
@@ -94,7 +94,7 @@ XSS.InjectionChecker = (async () => {
       if (/^(?:''|"")?[^\['"]*\\]/.test(s)) return this.bb("y[\n", s, "\n]")
       if (/^(?:''|"")?[^\{'"]*\}/.test(s)) return this.bb("function z() {\n", s, "\n}")
 
-      let syntax = this.syntax
+      const syntax = this.syntax
       s += " /* COMMENT_TERMINATOR */\nDUMMY_EXPR"
       if (syntax.check(s)) {
         this.log("Valid fragment " + s)
@@ -104,7 +104,7 @@ XSS.InjectionChecker = (async () => {
     },
 
     checkTemplates(script) {
-      let templateExpressions = script.replace(/[[\]{}]/g, ";")
+      const templateExpressions = script.replace(/[[\]{}]/g, ";")
       return (
         templateExpressions !== script &&
         (this.maybeMavo(script) ||
@@ -128,11 +128,11 @@ XSS.InjectionChecker = (async () => {
       )
     },
     get breakStops() {
-      var def = "\\/\\?&#;\\s\\x00}<>" // we stop on URL, JS and HTML delimiters
-      var bs = {
+      const def = "\\/\\?&#;\\s\\x00}<>" // we stop on URL, JS and HTML delimiters
+      const bs = {
         nq: new RegExp("[" + def + "]"),
       }
-      for (let c of ['"', '"', "`"]) {
+      for (const c of ['"', '"', "`"]) {
         // special treatment for quotes
         bs[c] = new RegExp("[" + def + c + "]")
       }
@@ -148,7 +148,7 @@ XSS.InjectionChecker = (async () => {
 
     _reduceBackslashes: bs => (bs.length % 2 ? "\\" : ""),
 
-    reduceQuotes: function (s) {
+    reduceQuotes(s) {
       if (s[0] == "/") {
         // reduce common leading path fragment resembling a regular expression or a comment
         s = s.replace(/^\/[^\/\n\r]+\//, "_RX_").replace(/^\/\/[^\r\n]*/, "//_COMMENT_")
@@ -168,7 +168,7 @@ XSS.InjectionChecker = (async () => {
 
         // drop escaped quotes
         s = s.replace(/\\["'\/]/g, " EQ ")
-        var expr
+        let expr
         for (;;) {
           expr = s
             .replace(/(^[^'"\/]*[;,\+\-=\(\[]\s*)\/[^\/]+\//g, "$1 _RX_ ")
@@ -182,7 +182,7 @@ XSS.InjectionChecker = (async () => {
       return s.replace(/^([^'"`\\]*?)\/\/[^\r\n]*/g, "$1//_COMMENT_")
     },
 
-    reduceURLs: function (s) {
+    reduceURLs(s) {
       // nested URLs with protocol are parsed as C++ style comments, and since
       // they're potentially very expensive, we preemptively remove them if possible
       while (/^[^'"]*?:\/\//.test(s)) {
@@ -200,13 +200,13 @@ XSS.InjectionChecker = (async () => {
       const toStringRx = /^function\s*toString\(\)\s*{\s*\[native code\]\s*\}$/
 
       // optimistic case first, one big JSON block
-      let m = s.match(/{[^]+}|\[[^=]*{[^]*}[^]*\]/)
+      const m = s.match(/{[^]+}|\[[^=]*{[^]*}[^]*\]/)
       if (!m) return s
 
       // semicolon-separated JSON chunks, like on syndication.twitter.com
       if (/}\s*;\s*{/.test(s)) {
-        let chunks = []
-        for (let chunk of s.split(";")) {
+        const chunks = []
+        for (const chunk of s.split(";")) {
           chunks.push(await this.reduceJSON(chunk))
         }
         s = chunks.join(";")
@@ -221,7 +221,7 @@ XSS.InjectionChecker = (async () => {
       } catch (e) {}
 
       for (;;) {
-        let prev = s
+        const prev = s
         let start = s.indexOf("{")
         let end = s.lastIndexOf("}")
         let prevExpr = ""
@@ -229,8 +229,8 @@ XSS.InjectionChecker = (async () => {
         while (start > -1 && end - start > 1) {
           expr = s.substring(start, end + 1)
           if (expr === prevExpr) break
-          let before = s.substring(0, start)
-          let after = s.substring(end + 1)
+          const before = s.substring(0, start)
+          const after = s.substring(end + 1)
           iterations++
           if (await this.timing.pause()) {
             this.log(
@@ -256,7 +256,7 @@ XSS.InjectionChecker = (async () => {
             continue
           }
 
-          let qred = this.reduceQuotes(expr)
+          const qred = this.reduceQuotes(expr)
           if (/\{(?:\s*(?:(?:\w+:)+\w+)+;\s*)+\}/.test(qred)) {
             this.log("Reducing pseudo-JSON " + expr)
             s = `${before}${REPL}${after}`
@@ -283,11 +283,11 @@ XSS.InjectionChecker = (async () => {
     },
 
     reduceXML: function reduceXML(s) {
-      var res
+      let res
 
       for (let pos = s.indexOf("<"); pos !== -1; pos = s.indexOf("<", 1)) {
-        let head = s.substring(0, pos)
-        let tail = s.substring(pos)
+        const head = s.substring(0, pos)
+        const tail = s.substring(pos)
 
         let qnum = 0
         for (pos = -1; (pos = head.indexOf('"', ++pos)) > -1; ) {
@@ -295,7 +295,7 @@ XSS.InjectionChecker = (async () => {
         }
         if (qnum % 2) break // odd quotes
 
-        let t = tail.replace(
+        const t = tail.replace(
           /^<(\??\s*\/?[a-zA-Z][\w:-]*)(?:[\s+]+[\w:-]+="[^"]*")*[\s+]*(\/?\??)>/,
           "<$1$2>"
         )
@@ -435,13 +435,13 @@ XSS.InjectionChecker = (async () => {
       )
     },
 
-    checkNonTrivialJSSyntax: function (expr) {
+    checkNonTrivialJSSyntax(expr) {
       return this.maybeJS(this.reduceQuotes(expr)) && this.checkJSSyntax(expr)
     },
 
     wantsExpression: s => /(?:^[+-]|[!%&(,*/:;<=>?\[^|]|[^-]-|[^+]\+)\s*$/.test(s),
 
-    stripLiteralsAndComments: function (s) {
+    stripLiteralsAndComments(s) {
       const MODE_NORMAL = 0
       const MODE_REGEX = 1
       const MODE_SINGLEQUOTE = 2
@@ -511,7 +511,7 @@ XSS.InjectionChecker = (async () => {
                     mode = MODE_LINECOMMENT
                     break
                   default:
-                    let r = res.join("")
+                    const r = res.join("")
                     res = [r]
                     if (this.wantsExpression(r)) mode = MODE_REGEX
                     else res.push("/") // after a self-contained expression: division operator
@@ -525,12 +525,12 @@ XSS.InjectionChecker = (async () => {
       return res.join("")
     },
 
-    checkLastFunction: function () {
-      var fn = this.syntax.lastFunction
+    checkLastFunction() {
+      const fn = this.syntax.lastFunction
       if (!fn) return false
-      var m = fn.toString().match(/\{([\s\S]*)\}/)
+      const m = fn.toString().match(/\{([\s\S]*)\}/)
       if (!m) return false
-      var expr = this.stripLiteralsAndComments(m[1])
+      const expr = this.stripLiteralsAndComments(m[1])
       return (
         /=[\s\S]*cookie|\b(?:setter|document|location|(?:inn|out)erHTML|\.\W*src)[\s\S]*=|[\w$\u0080-\uffff\)\]]\s*[\[\(]/.test(
           expr
@@ -538,15 +538,15 @@ XSS.InjectionChecker = (async () => {
       )
     },
 
-    _createInvalidRanges: function () {
+    _createInvalidRanges() {
       function x(n) {
         return "\\u" + ("0000" + n.toString(16)).slice(-4)
       }
 
-      var ret = ""
-      var first = -1
-      var last = -1
-      var cur = 0x7e
+      let ret = ""
+      let first = -1
+      let last = -1
+      let cur = 0x7e
       while (cur++ <= 0xffff) {
         try {
           eval("var _" + String.fromCharCode(cur) + "_=1")
@@ -615,7 +615,7 @@ XSS.InjectionChecker = (async () => {
       let iterations = 0
 
       for (let dangerPos = 0, m; (m = injectionFinderRx.exec(s)); ) {
-        let startPos = injectionFinderRx.lastIndex
+        const startPos = injectionFinderRx.lastIndex
         let subj = s.substring(startPos)
         if (startPos > dangerPos) {
           dangerRx.lastIndex = startPos
@@ -626,7 +626,7 @@ XSS.InjectionChecker = (async () => {
           dangerPos = dangerRx.lastIndex
         }
 
-        let breakSeq = m[1]
+        const breakSeq = m[1]
         let quote = breakSeq in this.breakStops ? breakSeq : ""
 
         if (!this.maybeJS(quote ? quote + subj : subj)) {
@@ -667,7 +667,7 @@ XSS.InjectionChecker = (async () => {
           continue
         }
 
-        let bs = this.breakStops[quote || "nq"]
+        const bs = this.breakStops[quote || "nq"]
 
         for (let len = expr.length, moved = false, hunt = !!expr, lastExpr = ""; hunt; ) {
           if (await this.timing.pause()) {
@@ -681,7 +681,7 @@ XSS.InjectionChecker = (async () => {
           if (moved) {
             moved = false
           } else if (hunt) {
-            let pos = subj.substring(len).search(bs)
+            const pos = subj.substring(len).search(bs)
             if (pos < 0) {
               expr = subj
               hunt = false
@@ -736,7 +736,7 @@ XSS.InjectionChecker = (async () => {
           }
 
           if (headRx.test(script.split("//")[0])) {
-            let balanced = script.replace(/^[^"'{}(]*\)/, "P ")
+            const balanced = script.replace(/^[^"'{}(]*\)/, "P ")
             if (balanced !== script && balanced.indexOf("(") > -1) {
               script = balanced + ")"
             } else {
@@ -762,12 +762,12 @@ XSS.InjectionChecker = (async () => {
             }
             if (this.syntax.lastError) {
               // could be null if we're here thanks to checkLastFunction()
-              let errmsg = this.syntax.lastError.message
+              const errmsg = this.syntax.lastError.message
               if (logEnabled)
                 this.log(errmsg + " --- " + this.syntax.lastScript + " --- ", iterations)
               if (!quote) {
                 if (errmsg.indexOf("left-hand") !== -1) {
-                  let m = subj.match(/^([^\]\(\\'"=\?]+?)[\w$\u0080-\uffff\s]+[=\?]/)
+                  const m = subj.match(/^([^\]\(\\'"=\?]+?)[\w$\u0080-\uffff\s]+[=\?]/)
                   if (m) {
                     injectionFinderRx.lastIndex += m[1].length - 1
                   }
@@ -779,9 +779,9 @@ XSS.InjectionChecker = (async () => {
                     moved = true
                   } else break
                 } else if (errmsg.indexOf("syntax error") !== -1) {
-                  let dblSlashPos = subj.indexOf("//")
+                  const dblSlashPos = subj.indexOf("//")
                   if (dblSlashPos > -1) {
-                    let pos = subj.search(/['"\n\\\(]|\/\*/)
+                    const pos = subj.search(/['"\n\\\(]|\/\*/)
                     if (pos < 0 || pos > dblSlashPos) break
                   }
                   if (/^([\w\[\]]*=)?\w*&[\w\[\]]*=/.test(subj)) {
@@ -807,9 +807,9 @@ XSS.InjectionChecker = (async () => {
                   hunt = moved = true
                 } else break
               } else if ((m = errmsg.match(/\b(?:property id\b|missing ([:\]\)\}]) )/))) {
-                let char = m[1] || "}"
+                const char = m[1] || "}"
                 let newLen = subj.indexOf(char, len)
-                let nextParamPos = subj.substring(len).search(/[^&]&(?!&)/)
+                const nextParamPos = subj.substring(len).search(/[^&]&(?!&)/)
                 if (
                   newLen !== -1 &&
                   (nextParamPos === -1 || newLen <= len + nextParamPos)
@@ -818,7 +818,7 @@ XSS.InjectionChecker = (async () => {
                   expr = subj.substring(0, (len = ++newLen))
                   moved = char !== ":"
                 } else if (char !== ":") {
-                  let lastChar = expr[expr.length - 1]
+                  const lastChar = expr[expr.length - 1]
                   if (
                     lastChar === char &&
                     (len > subj.length || lastChar != subj[len - 1])
@@ -850,7 +850,8 @@ XSS.InjectionChecker = (async () => {
         this.nameAssignment = true
       }
 
-      var hasUnicodeEscapes = !unescapedUni && /\\u(?:[0-9a-f]{4}|\{[0-9a-f]+\})/i.test(s)
+      const hasUnicodeEscapes =
+        !unescapedUni && /\\u(?:[0-9a-f]{4}|\{[0-9a-f]+\})/i.test(s)
       if (hasUnicodeEscapes && /\\u(?:\{0*|00)[0-7][0-9a-f]/i.test(s)) {
         this.escalate("Unicode-escaped lower ASCII")
         return true
@@ -867,7 +868,7 @@ XSS.InjectionChecker = (async () => {
       }
 
       this.syntax.lastFunction = null
-      let ret =
+      const ret =
         (await this.checkAttributes(s)) ||
         ((/[\\\(]|=[^=]/.test(s) || this._riskyOperatorsRx.test(s)) &&
           (await this.checkJSBreak(s))) || // MAIN
@@ -882,20 +883,20 @@ XSS.InjectionChecker = (async () => {
       return ret
     },
 
-    unescapeJS: function (s) {
-      return s.replace(/\\u([0-9a-f]{4})/gi, function (s, c) {
-        return String.fromCharCode(parseInt(c, 16))
-      })
+    unescapeJS(s) {
+      return s.replace(/\\u([0-9a-f]{4})/gi, (s, c) =>
+        String.fromCharCode(parseInt(c, 16))
+      )
     },
-    unescapeJSLiteral: function (s) {
-      return s.replace(/\\x([0-9a-f]{2})/gi, function (s, c) {
-        return String.fromCharCode(parseInt(c, 16))
-      })
+    unescapeJSLiteral(s) {
+      return s.replace(/\\x([0-9a-f]{2})/gi, (s, c) =>
+        String.fromCharCode(parseInt(c, 16))
+      )
     },
 
-    unescapeCSS: function (s) {
+    unescapeCSS(s) {
       // see http://www.w3.org/TR/CSS21/syndata.html#characters
-      return s.replace(/\\([\da-f]{0,6})\s?/gi, function ($0, $1) {
+      return s.replace(/\\([\da-f]{0,6})\s?/gi, ($0, $1) => {
         try {
           return String.fromCharCode(parseInt($1, 16))
         } catch (e) {
@@ -904,7 +905,7 @@ XSS.InjectionChecker = (async () => {
       })
     },
 
-    reduceDashPlus: function (s) {
+    reduceDashPlus(s) {
       // http://forums.mozillazine.org/viewtopic.php?p=5592865#p5592865
       return s
         .replace(/\-+/g, "-")
@@ -914,9 +915,9 @@ XSS.InjectionChecker = (async () => {
         .replace(/(?:\+\-)+/g, "+-")
     },
 
-    _rxCheck: function (checker, s) {
-      var rx = this[checker + "Checker"]
-      var ret = rx.exec(s)
+    _rxCheck(checker, s) {
+      const rx = this[checker + "Checker"]
+      const ret = rx.exec(s)
       if (ret) {
         this.escalate(checker + " injection:\n" + ret + "\nmatches " + rx.source)
         return true
@@ -937,9 +938,9 @@ XSS.InjectionChecker = (async () => {
       s = this.reduceDashPlus(s)
       if (this._rxCheck("Attributes", s)) return true
       if (/\\/.test(s) && this._rxCheck("Attributes", this.unescapeCSS(s))) return true
-      let dataPos = s.search(/data:\S*\s/i)
+      const dataPos = s.search(/data:\S*\s/i)
       if (dataPos !== -1) {
-        let data = this.urlUnescape(s.substring(dataPos).replace(/\s/g, ""))
+        const data = this.urlUnescape(s.substring(dataPos).replace(/\s/g, ""))
         if ((await this.checkHTML(data)) || (await this.checkAttributes(data)))
           return true
       }
@@ -959,7 +960,7 @@ XSS.InjectionChecker = (async () => {
     ),
 
     async checkHTML(s) {
-      let links = s.match(
+      const links = s.match(
         /\b(?:href|(?:low)?src|base|(?:form)?action|background|ping|\w+-\w+)\s*=\s*(?:(["'])[\s\S]*?\1|(?:[^'">][^>\s]*)?[:?\/#][^>\s]*)/gi
       )
       if (links) {
@@ -993,11 +994,11 @@ XSS.InjectionChecker = (async () => {
     },
 
     HeadersChecker: /[\r\n]\s*(?:content-(?:type|encoding))\s*:/i,
-    checkHeaders: function (s) {
+    checkHeaders(s) {
       return this._rxCheck("Headers", s)
     },
     SQLIChecker: /(?:(?:(?:\b|[^a-z])union[^a-z]|\()[\w\W]*(?:\b|[^a-z])select[^a-z]|(?:updatexml|extractvalue)(?:\b|[^a-z])[\w\W]*\()[\w\W]+(?:(?:0x|x')[0-9a-f]{16}|(?:0b|b')[01]{64}|\(|\|\||\+)/i,
-    checkSQLI: function (s) {
+    checkSQLI(s) {
       return this._rxCheck("SQLI", s)
     },
 
@@ -1010,7 +1011,7 @@ XSS.InjectionChecker = (async () => {
     async checkBase64(url) {
       this.base64 = false
 
-      let hashPos = url.indexOf("#")
+      const hashPos = url.indexOf("#")
       if (hashPos !== -1) {
         if (await this.checkBase64FragEx(unescape(url.substring(hashPos + 1))))
           return true
@@ -1019,7 +1020,7 @@ XSS.InjectionChecker = (async () => {
 
       let parts = url.substring(0, hashPos).split(/[&;]/) // check query string
       for (let p of parts) {
-        var pos = p.indexOf("=")
+        const pos = p.indexOf("=")
         if (pos > -1) p = p.substring(pos + 1)
         if (await this.checkBase64FragEx(unescape(p))) {
           return true
@@ -1033,14 +1034,14 @@ XSS.InjectionChecker = (async () => {
         return true
       }
 
-      for (let p of parts) {
+      for (const p of parts) {
         if (await this.checkBase64Frag(Base64.purify(Base64.alt(p)))) {
           return true
         }
         await this.timing.pause()
       }
 
-      var uparts = Base64.purify(unescape(url)).split("/")
+      const uparts = Base64.purify(unescape(url)).split("/")
 
       while (parts.length) {
         if (
@@ -1061,7 +1062,7 @@ XSS.InjectionChecker = (async () => {
       if (this.base64tested.indexOf(f) < 0) {
         this.base64tested.push(f)
         try {
-          var s = Base64.decode(f)
+          const s = Base64.decode(f)
           if (
             s &&
             s.replace(/[^\w\(\)]/g, "").length > 7 &&
@@ -1097,8 +1098,8 @@ XSS.InjectionChecker = (async () => {
     async checkPost(formData, skipParams = null) {
       let keys = Object.keys(formData)
       if (Array.isArray(skipParams)) keys = keys.filter(k => !skipParams.includes(k))
-      for (let key of keys) {
-        let chunk = `${key}=${formData[key].join(`;`)}`
+      for (const key of keys) {
+        const chunk = `${key}=${formData[key].join(`;`)}`
         if (await this.checkRecursive(chunk, 2, true)) {
           return chunk
         }
@@ -1119,16 +1120,16 @@ XSS.InjectionChecker = (async () => {
         return true
       }
       if (FlashIdiocy.affects(s)) {
-        let purged = FlashIdiocy.purgeBadEncodings(s)
+        const purged = FlashIdiocy.purgeBadEncodings(s)
         if (purged !== s && (await this.checkRecursive(purged, depth, isPost)))
           return true
-        let decoded = FlashIdiocy.platformDecode(purged)
+        const decoded = FlashIdiocy.platformDecode(purged)
         if (decoded !== purged && (await this.checkRecursive(decoded, depth, isPost)))
           return true
       }
 
       if (!isPost && s.indexOf("coalesced:") !== 0) {
-        let coalesced = ASPIdiocy.coalesceQuery(s)
+        const coalesced = ASPIdiocy.coalesceQuery(s)
         if (
           coalesced !== s &&
           (await this.checkRecursive("coalesced:" + coalesced, depth, isPost))
@@ -1164,7 +1165,7 @@ XSS.InjectionChecker = (async () => {
         return true
 
       if (s.indexOf("&") !== -1) {
-        let unent = await Entities.convertAll(s)
+        const unent = await Entities.convertAll(s)
         if (unent !== s && (await this._checkRecursive(unent, depth))) return true
       }
 
@@ -1178,13 +1179,15 @@ XSS.InjectionChecker = (async () => {
       )
         return true
 
-      var unescaped = this.urlUnescape(s)
-      let badUTF8 = this.utf8EscapeError
+      const unescaped = this.urlUnescape(s)
+      const badUTF8 = this.utf8EscapeError
 
       if (this._checkOverDecoding(s, unescaped)) return true
 
       if (/[\u0000-\u001f]|&#/.test(unescaped)) {
-        let unent = await Entities.convertAll(unescaped.replace(/[\u0000-\u001f]+/g, ""))
+        const unent = await Entities.convertAll(
+          unescaped.replace(/[\u0000-\u001f]+/g, "")
+        )
         if (unescaped != unent && (await this._checkRecursive(unent, depth))) {
           this.log("Trash-stripped nested URL match!")
           return true
@@ -1192,7 +1195,7 @@ XSS.InjectionChecker = (async () => {
       }
 
       if (/\\x[0-9a-f]/i.test(unescaped)) {
-        let literal = this.unescapeJSLiteral(unescaped)
+        const literal = this.unescapeJSLiteral(unescaped)
         if (unescaped !== literal && (await this._checkRecursive(literal, depth))) {
           this.log("Escaped literal match!")
           return true
@@ -1210,7 +1213,7 @@ XSS.InjectionChecker = (async () => {
 
       if (badUTF8) {
         try {
-          let legacyEscaped = unescape(unescaped)
+          const legacyEscaped = unescape(unescaped)
           if (
             legacyEscaped !== unescaped &&
             (await this._checkRecursive(unescape(unescaped)))
@@ -1229,13 +1232,13 @@ XSS.InjectionChecker = (async () => {
       return false
     },
 
-    _checkOverDecoding: function (s, unescaped) {
+    _checkOverDecoding(s, unescaped) {
       if (/%[8-9a-f]/i.test(s)) {
         const rx = /[<'"]/g
-        var m1 = unescape(this.utf8OverDecode(s, false)).match(rx)
+        const m1 = unescape(this.utf8OverDecode(s, false)).match(rx)
         if (m1) {
           unescaped = unescaped || this.urlUnescape(s)
-          var m0 = unescaped.match(rx)
+          const m0 = unescaped.match(rx)
           if (!m0 || m0.length < m1.length) {
             this.log("Potential utf8_decode() exploit!")
             return true
@@ -1245,15 +1248,15 @@ XSS.InjectionChecker = (async () => {
       return false
     },
 
-    utf8OverDecode: function (url, strict) {
+    utf8OverDecode(url, strict) {
       return url.replace(
         strict
           ? /%(?:f0%80%80|e0%80|c0)%[8-b][0-f]/gi
           : /%(?:f[a-f0-9](?:%[0-9a-f]0){2}|e0%[4-9a-f]0|c[01])%[a-f0-9]{2}/gi,
-        function (m) {
-          var hex = m.replace(/%/g, "")
+        m => {
+          let hex = m.replace(/%/g, "")
           if (strict) {
-            for (var j = 2; j < hex.length; j += 2) {
+            for (let j = 2; j < hex.length; j += 2) {
               if ((parseInt(hex.substring(j, j + 2), 16) & 0xc0) != 0x80) return m
             }
           }
@@ -1277,8 +1280,8 @@ XSS.InjectionChecker = (async () => {
     },
 
     utf8EscapeError: true,
-    urlUnescape: function (url, brutal) {
-      var od = this.utf8OverDecode(url, !brutal)
+    urlUnescape(url, brutal) {
+      const od = this.utf8OverDecode(url, !brutal)
       this.utf8EscapeError = false
       try {
         return decodeURIComponent(od)
@@ -1292,18 +1295,18 @@ XSS.InjectionChecker = (async () => {
       }
     },
 
-    formUnescape: function (s, brutal) {
+    formUnescape(s, brutal) {
       return this.urlUnescape(s.replace(/\+/g, " "), brutal)
     },
 
-    ebayUnescape: function (url) {
-      return url.replace(/Q([\da-fA-F]{2})/g, function (s, c) {
-        return String.fromCharCode(parseInt(c, 16))
-      })
+    ebayUnescape(url) {
+      return url.replace(/Q([\da-fA-F]{2})/g, (s, c) =>
+        String.fromCharCode(parseInt(c, 16))
+      )
     },
 
     async checkWindowName(window, url) {
-      var originalAttempt = window.name
+      const originalAttempt = window.name
       try {
         if (/^https?:\/\/(?:[^/]*\.)?\byimg\.com\/rq\/darla\//.test(url)) {
           window.name = "DARLA_JUNK"
@@ -1324,7 +1327,7 @@ XSS.InjectionChecker = (async () => {
         if (originalAttempt.length > 11) {
           try {
             if (originalAttempt.length % 4 === 0) {
-              var bin = window.atob(window.name)
+              const bin = window.atob(window.name)
               if (/[%=\(\\]/.test(bin) && (await this.checkUrl(bin))) {
                 window.name = "BASE_64_XSS"
               }

@@ -27,21 +27,21 @@ import {} from "./Settings"
 
 {
   {
-    for (let event of ["onInstalled", "onUpdateAvailable"]) {
+    for (const event of ["onInstalled", "onUpdateAvailable"]) {
       browser.runtime[event].addListener(async details => {
         await include("/bg/LifeCycle.js")
         LifeCycle[event](details)
       })
     }
   }
-  let popupURL = browser.extension.getURL("/ui/popup.html")
-  let popupFor = tabId => `${popupURL}#tab${tabId}`
+  const popupURL = browser.extension.getURL("/ui/popup.html")
+  const popupFor = tabId => `${popupURL}#tab${tabId}`
 
-  let ctxMenuId = "noscript-ctx-menu"
+  const ctxMenuId = "noscript-ctx-menu"
 
   async function toggleCtxMenuItem(show = ns.local.showCtxMenuItem) {
     if (!("contextMenus" in browser)) return
-    let id = ctxMenuId
+    const id = ctxMenuId
     try {
       await browser.contextMenus.remove(id)
     } catch (e) {}
@@ -60,7 +60,7 @@ import {} from "./Settings"
 
     if (!ns.policy) {
       // it could have been already retrieved by LifeCycle
-      let policyData = (await Storage.get("sync", "policy")).policy
+      const policyData = (await Storage.get("sync", "policy")).policy
       if (policyData && policyData.DEFAULT) {
         ns.policy = new Policy(policyData)
       } else {
@@ -89,12 +89,12 @@ import {} from "./Settings"
     await include("/bg/popupHandler.js")
   }
 
-  let Commands = {
+  const Commands = {
     async openPageUI() {
       if (ns.popupOpening) return
       ns.popupOpening = true
       ns.popupOpened = false
-      let openPanel = async () => {
+      const openPanel = async () => {
         ns.popupOpening = false
         if (ns.popupOpened) return
         messageHandler.openStandalonePopup()
@@ -130,7 +130,7 @@ import {} from "./Settings"
       }
 
       // wiring main UI
-      let ba = browser.browserAction
+      const ba = browser.browserAction
       if ("setIcon" in ba) {
         //desktop or Fenix
         ba.setPopup({
@@ -154,16 +154,16 @@ import {} from "./Settings"
     },
   }
 
-  let messageHandler = {
+  const messageHandler = {
     async updateSettings(settings, sender) {
       await Settings.update(settings)
       toggleCtxMenuItem()
     },
 
     async broadcastSettings({ tabId = -1 }) {
-      let policy = ns.policy.dry(true)
-      let seen = tabId !== -1 ? await ns.collectSeen(tabId) : null
-      let xssUserChoices = await XSS.getUserChoices()
+      const policy = ns.policy.dry(true)
+      const seen = tabId !== -1 ? await ns.collectSeen(tabId) : null
+      const xssUserChoices = await XSS.getUserChoices()
       await Messages.send("settings", {
         policy,
         seen,
@@ -189,7 +189,7 @@ import {} from "./Settings"
       )
     },
     fetchChildPolicySync({ url, contextUrl }, sender) {
-      let { tab, frameId } = sender
+      const { tab, frameId } = sender
       let policy = ns.policy
       if (!policy) {
         console.log(
@@ -203,7 +203,7 @@ import {} from "./Settings"
           fallback: true,
         }
       }
-      let topUrl = frameId === 0 ? contextUrl : tab && (tab.url || TabCache.get(tab.id))
+      const topUrl = frameId === 0 ? contextUrl : tab && (tab.url || TabCache.get(tab.id))
       if (Sites.isInternal(url) || !ns.isEnforced(tab ? tab.id : -1)) {
         policy = null
       }
@@ -226,8 +226,8 @@ import {} from "./Settings"
     },
 
     async openStandalonePopup() {
-      let win = await browser.windows.getLastFocused()
-      let [tab] = await browser.tabs.query({
+      const win = await browser.windows.getLastFocused()
+      const [tab] = await browser.tabs.query({
         lastFocusedWindow: true,
         active: true,
       })
@@ -255,13 +255,14 @@ import {} from "./Settings"
     }
   }
 
-  var ns = {
+  const ns = {
     running: false,
     policy: null,
     local: null,
     sync: null,
     initializing: null,
     unrestrictedTabs: new Set(),
+
     isEnforced(tabId = -1) {
       return this.policy.enforced && (tabId === -1 || !this.unrestrictedTabs.has(tabId))
     },
@@ -314,7 +315,7 @@ import {} from "./Settings"
 
     async save(obj) {
       if (obj && obj.storage) {
-        let toBeSaved = {
+        const toBeSaved = {
           [obj.storage]: obj,
         }
         await Storage.set(obj.storage, toBeSaved)
@@ -324,7 +325,7 @@ import {} from "./Settings"
 
     async collectSeen(tabId) {
       try {
-        let seen = Array.from(
+        const seen = Array.from(
           await Messages.send("collect", { uuid: ns.local.uuid }, { tabId, frameId: 0 })
         )
         debug("Collected seen", seen)

@@ -5,8 +5,8 @@ import "../lib/log"
 import "../common/locale"
 import "../ui/ui"
 
-var sitesUI
-var port
+let sitesUI
+let port
 
 addEventListener("unload", e => {
   if (!UI.initialized) {
@@ -15,7 +15,7 @@ addEventListener("unload", e => {
 })
 ;(async () => {
   function showMessage(className, message) {
-    let el = document.getElementById("message")
+    const el = document.getElementById("message")
     el.textContent = message
     el.className = className
   }
@@ -24,7 +24,7 @@ addEventListener("unload", e => {
     let tabId
     let isBrowserAction = true
     let optionsClosed = false
-    let tab = (
+    const tab = (
       await browser.tabs.query({
         windowId: browser.windows ? (await browser.windows.getLastFocused()).id : null,
         active: true,
@@ -51,7 +51,7 @@ addEventListener("unload", e => {
 
     addEventListener("keydown", e => {
       if (e.code === "Enter") {
-        let focused = document.activeElement
+        const focused = document.activeElement
         if (focused.closest(".sites")) {
           close()
         }
@@ -77,7 +77,7 @@ addEventListener("unload", e => {
 
     await include("/ui/toolbar.js")
     {
-      let handlers = {
+      const handlers = {
         options: e => {
           if (UA.mobile) {
             // Fenix fails on openOptionsPage
@@ -87,8 +87,8 @@ addEventListener("unload", e => {
           }
           close()
         },
-        close: close,
-        reload: reload,
+        close,
+        reload,
         "temp-trust-page": e => sitesUI.tempTrustAll(),
         "revoke-temp": e => {
           UI.revokeTemp(sitesUI && sitesUI.hasTemp)
@@ -96,15 +96,15 @@ addEventListener("unload", e => {
         },
       }
 
-      for (let b of document.querySelectorAll("#top > .icon")) {
+      for (const b of document.querySelectorAll("#top > .icon")) {
         b.tabIndex = 0
         if (b.id in handlers) {
-          let h = handlers[b.id]
+          const h = handlers[b.id]
           b.onclick = h
         }
       }
 
-      let keyHandlers = {
+      const keyHandlers = {
         r: "reload",
         o: "options",
         p: "temp-trust-page",
@@ -116,14 +116,14 @@ addEventListener("unload", e => {
       window.addEventListener(
         "keydown",
         e => {
-          let buttonId = keyHandlers[e.key]
+          const buttonId = keyHandlers[e.key]
           if (buttonId) document.getElementById(buttonId).click()
         },
         true
       )
 
-      let navigate = e => {
-        let sel = e.code === "ArrowUp" ? ":last-child" : ""
+      const navigate = e => {
+        const sel = e.code === "ArrowUp" ? ":last-child" : ""
         document.querySelector(`.sites tr.site${sel} input.preset:checked`).focus()
         e.preventDefault()
         e.stopPropagation()
@@ -144,8 +144,8 @@ addEventListener("unload", e => {
               break
             case "ArrowLeft":
             case "ArrowRight": {
-              let focused = document.activeElement
-              let all = [...focused.parentNode.querySelectorAll(".icon")]
+              const focused = document.activeElement
+              const all = [...focused.parentNode.querySelectorAll(".icon")]
               let index = all.indexOf(focused)
               if (index === -1) return
               index += e.code === "ArrowRight" ? 1 : -1
@@ -160,9 +160,9 @@ addEventListener("unload", e => {
       )
     }
     {
-      let policy = UI.policy
-      let pressed = policy.enforced
-      let button = document.getElementById("enforce")
+      const policy = UI.policy
+      const pressed = policy.enforced
+      const button = document.getElementById("enforce")
       button.setAttribute("aria-pressed", pressed)
       button.title = _(pressed ? "NoEnforcement" : "Enforce")
       button.onclick = async () => {
@@ -173,8 +173,8 @@ addEventListener("unload", e => {
       }
     }
     {
-      let pressed = !UI.unrestrictedTab
-      let button = document.getElementById("enforce-tab")
+      const pressed = !UI.unrestrictedTab
+      const button = document.getElementById("enforce-tab")
       button.setAttribute("aria-pressed", pressed)
       button.title = _(pressed ? "NoEnforcementForTab" : "EnforceForTab")
       if (UI.policy.enforced) {
@@ -194,13 +194,13 @@ addEventListener("unload", e => {
     let mainFrame = UI.seen && UI.seen.find(thing => thing.request.type === "main_frame")
     debug("Seen: %o", UI.seen)
     if (!mainFrame) {
-      let isHttp = /^https?:/.test(pageTab.url)
+      const isHttp = /^https?:/.test(pageTab.url)
       try {
         await browser.tabs.executeScript(tabId, { code: "" })
         if (isHttp) {
           document.body.classList.add("disabled")
           showMessage("warning", _("freshInstallReload"))
-          let buttons = document.querySelector("#buttons")
+          const buttons = document.querySelector("#buttons")
           let b = document.createElement("button")
           b.textContent = _("OK")
           b.onclick = document.getElementById("reload").onclick = () => {
@@ -219,16 +219,16 @@ addEventListener("unload", e => {
       }
 
       await include("/lib/restricted.js")
-      let isRestricted = isRestrictedURL(pageTab.url)
+      const isRestricted = isRestrictedURL(pageTab.url)
       if (!isHttp || isRestricted) {
         showMessage("warning", _("privilegedPage"))
-        let tempTrust = document.getElementById("temp-trust-page")
+        const tempTrust = document.getElementById("temp-trust-page")
         tempTrust.disabled = true
         return
       }
       if (!UI.seen) {
         if (!isHttp) return
-        let { url } = pageTab
+        const { url } = pageTab
         UI.seen = [
           (mainFrame = {
             request: { url, documentUrl: url, type: "main_frame" },
@@ -237,7 +237,7 @@ addEventListener("unload", e => {
       }
     }
 
-    let justDomains = !UI.local.showFullAddresses
+    const justDomains = !UI.local.showFullAddresses
 
     sitesUI = new UI.Sites(document.getElementById("sites"))
 
@@ -267,14 +267,14 @@ addEventListener("unload", e => {
 
     function initSitesUI() {
       pendingReload(false)
-      let { typesMap } = sitesUI
+      const { typesMap } = sitesUI
       typesMap.clear()
-      let policySites = UI.policy.sites
-      let domains = new Map()
-      let protocols = new Set()
+      const policySites = UI.policy.sites
+      const domains = new Map()
+      const protocols = new Set()
       function urlToLabel(url) {
-        let origin = Sites.origin(url)
-        let match = policySites.match(url)
+        const origin = Sites.origin(url)
+        const match = policySites.match(url)
         if (match) {
           if (match === url.protocol) {
             protocols.add(match)
@@ -296,8 +296,8 @@ addEventListener("unload", e => {
         }
         return origin
       }
-      let seen = UI.seen
-      let parsedSeen = seen
+      const seen = UI.seen
+      const parsedSeen = seen
         .map(thing =>
           Object.assign(
             {
@@ -312,15 +312,15 @@ addEventListener("unload", e => {
             (parsed.url.origin !== "null" || parsed.url.protocol === "file:")
         )
 
-      let sitesSet = new Set(
+      const sitesSet = new Set(
         parsedSeen.map(parsed => (parsed.label = urlToLabel(parsed.url)))
       )
       if (!justDomains) {
-        for (let domain of domains.values()) sitesSet.add(domain)
+        for (const domain of domains.values()) sitesSet.add(domain)
       }
-      for (let protocol of protocols) sitesSet.add(protocol)
-      let sites = [...sitesSet]
-      for (let parsed of parsedSeen) {
+      for (const protocol of protocols) sitesSet.add(protocol)
+      const sites = [...sitesSet]
+      for (const parsed of parsedSeen) {
         sites
           .filter(s => parsed.label === s || domains.get(Sites.origin(parsed.url)) === s)
           .forEach(m => {
@@ -353,10 +353,10 @@ addEventListener("unload", e => {
       }
     }
 
-    let { onCompleted } = browser.webNavigation
+    const { onCompleted } = browser.webNavigation
 
-    let loadSnapshot = sitesUI.snapshot
-    let onCompletedListener = navigated => {
+    const loadSnapshot = sitesUI.snapshot
+    const onCompletedListener = navigated => {
       if (navigated.tabId === tabId) {
         setTimeout(() => UI.pullSettings(), 500)
       }

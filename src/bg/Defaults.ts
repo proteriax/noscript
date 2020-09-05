@@ -1,8 +1,8 @@
 export {}
 
-var Defaults = {
+const Defaults = {
   async init() {
-    let defaults = {
+    const defaults = {
       local: {
         debug: false,
         showCtxMenuItem: true,
@@ -18,10 +18,10 @@ var Defaults = {
         clearclick: true,
       },
     }
-    let defaultsClone = JSON.parse(JSON.stringify(defaults))
+    const defaultsClone = JSON.parse(JSON.stringify(defaults))
 
-    for (let [k, v] of Object.entries(defaults)) {
-      let store = await Storage.get(k, k)
+    for (const [k, v] of Object.entries(defaults)) {
+      const store = await Storage.get(k, k)
       if (k in store) {
         Object.assign(v, store[k])
       }

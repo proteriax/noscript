@@ -26,10 +26,10 @@ if (typeof exportFunction === "function")
     }
 
     function modifyWindowOpenMethod(win, modifyTarget) {
-      let windowOpen = win.wrappedJSObject ? win.wrappedJSObject.open : win.open
+      const windowOpen = win.wrappedJSObject ? win.wrappedJSObject.open : win.open
       exportFunction(
         function (...args) {
-          let newWin = windowOpen.call(this, ...args)
+          const newWin = windowOpen.call(this, ...args)
           if (newWin) modifyWindow(newWin, modifyTarget)
           return newWin
         },
@@ -39,29 +39,29 @@ if (typeof exportFunction === "function")
     }
 
     function modifyFramingElements(win, modifyTarget) {
-      for (let property of ["contentWindow", "contentDocument"]) {
-        for (let _interface of ["Frame", "IFrame", "Object"]) {
-          let proto = win[`HTML${_interface}Element`].prototype
+      for (const property of ["contentWindow", "contentDocument"]) {
+        for (const _interface of ["Frame", "IFrame", "Object"]) {
+          const proto = win[`HTML${_interface}Element`].prototype
           modifyContentProperties(proto, property, modifyTarget)
         }
       }
     }
 
     function modifyContentProperties(proto, property, modifyTarget) {
-      let descriptor = Object.getOwnPropertyDescriptor(proto, property)
-      let origGetter = descriptor.get
+      const descriptor = Object.getOwnPropertyDescriptor(proto, property)
+      const origGetter = descriptor.get
       let replacementFn
 
       if (property === "contentWindow") {
         replacementFn = function () {
-          let win = origGetter.call(this)
+          const win = origGetter.call(this)
           if (win) modifyWindow(win, modifyTarget)
           return win
         }
       }
       if (property === "contentDocument") {
         replacementFn = function () {
-          let document = origGetter.call(this)
+          const document = origGetter.call(this)
           if (document && document.defaultView)
             modifyWindow(document.defaultView, modifyTarget)
           return document
@@ -69,19 +69,19 @@ if (typeof exportFunction === "function")
       }
 
       descriptor.get = exportFunction(replacementFn, proto, { defineAs: `get $property` })
-      let wrappedProto = proto.wrappedJSObject || proto
+      const wrappedProto = proto.wrappedJSObject || proto
       Object.defineProperty(wrappedProto, property, descriptor)
     }
 
     //
 
     function modifyGetContext(win) {
-      let proto = win.HTMLCanvasElement.prototype
-      let getContext = proto.getContext
+      const proto = win.HTMLCanvasElement.prototype
+      const getContext = proto.getContext
       exportFunction(
         function (type, ...rest) {
           if (type && type.toLowerCase().includes("webgl")) {
-            let request = {
+            const request = {
               id: "noscript-webgl",
               type: "webgl",
               url: document.URL,
@@ -90,7 +90,7 @@ if (typeof exportFunction === "function")
             }
             seen.record({ policyType: "webgl", request, allowed: false })
             try {
-              let ph = PlaceHolder.create("webgl", request)
+              const ph = PlaceHolder.create("webgl", request)
               ph.replace(this)
               PlaceHolder.listen()
             } catch (e) {

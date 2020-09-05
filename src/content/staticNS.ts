@@ -1,8 +1,8 @@
 export {}
-let listenersMap = new Map()
-let backlog = new Set()
+const listenersMap = new Map()
+const backlog = new Set()
 
-let ns = {
+const ns = {
   debug: true, // DEV_ONLY
   get embeddingDocument() {
     delete this.embeddingDocument
@@ -15,7 +15,7 @@ let ns = {
     if (backlog.has(eventName)) this.fire(eventName, listener)
   },
   detach(eventName, listener) {
-    let listeners = listenersMap.get(eventName)
+    const listeners = listenersMap.get(eventName)
     if (listeners) listeners.delete(listener)
   },
   fire(eventName, listener = null) {
@@ -23,9 +23,9 @@ let ns = {
       listener({ type: eventName, source: this })
       return
     }
-    let listeners = listenersMap.get(eventName)
+    const listeners = listenersMap.get(eventName)
     if (listeners) {
-      for (let l of listeners) {
+      for (const l of listeners) {
         this.fire(eventName, l)
       }
     }
@@ -54,14 +54,14 @@ let ns = {
             : `${window.isSecureContext ? "https" : "http"}://${document.domain}`
         debug("Fetching policy for actual URL %s (was %s)", url, document.URL)
       }
-      let asyncFetch = async () => {
+      const asyncFetch = async () => {
         try {
           policy = await Messages.send("fetchChildPolicy", { url, contextUrl: url })
         } catch (e) {
           error(e, "Error while fetching policy")
         }
         if (policy === undefined) {
-          let delay = 300
+          const delay = 300
           log(`Policy was undefined, retrying in ${delay}ms...`)
           setTimeout(asyncFetch, delay)
           return
@@ -88,7 +88,7 @@ let ns = {
         },
       })
     } else {
-      let perms = policy.permissions
+      const perms = policy.permissions
       this.capabilities = new Set(perms.capabilities)
       new DocumentCSP(document).apply(this.capabilities, this.embeddingDocument)
     }

@@ -1,7 +1,7 @@
 export {}
 if ("MediaSource" in window) {
-  let notify = allowed => {
-    let request = {
+  const notify = allowed => {
+    const request = {
       id: "noscript-media",
       type: "media",
       url: document.URL,
@@ -13,9 +13,10 @@ if ("MediaSource" in window) {
     notifyPage()
     return request
   }
-  let createPlaceholder = (mediaElement, request) => {
+
+  const createPlaceholder = (mediaElement, request) => {
     try {
-      let ph = PlaceHolder.create("media", request)
+      const ph = PlaceHolder.create("media", request)
       ph.replace(mediaElement)
       PlaceHolder.listen()
       debug("MSE placeholder for %o", mediaElement) // DEV_ONLY
@@ -26,21 +27,21 @@ if ("MediaSource" in window) {
 
   if (typeof exportFunction === "function") {
     // Mozilla
-    let mediablocker = true
+    const mediablocker = true
     ns.on("capabilities", e => {
       mediaBlocker = !ns.allows("media")
     })
 
-    let unpatched = new Map()
+    const unpatched = new Map()
     function patch(obj, methodName, replacement) {
-      let methods = unpatched.get(obj) || {}
+      const methods = unpatched.get(obj) || {}
       methods[methodName] = obj[methodName]
       exportFunction(replacement, obj, { defineAs: methodName })
       unpatched.set(obj, methods)
     }
-    let urlMap = new WeakMap()
+    const urlMap = new WeakMap()
     patch(window.URL, "createObjectURL", function (o, ...args) {
-      let url = unpatched.get(window.URL).createObjectURL.call(this, o, ...args)
+      const url = unpatched.get(window.URL).createObjectURL.call(this, o, ...args)
       if (o instanceof MediaSource) {
         let urls = urlMap.get(o)
         if (!urls) urlMap.set(o, (urls = new Set()))
@@ -50,13 +51,13 @@ if ("MediaSource" in window) {
     })
 
     patch(window.MediaSource.prototype, "addSourceBuffer", function (mime, ...args) {
-      let ms = this
-      let urls = urlMap.get(ms)
-      let request = notify(!mediaBlocker)
+      const ms = this
+      const urls = urlMap.get(ms)
+      const request = notify(!mediaBlocker)
       if (mediaBlocker) {
-        let exposedMime = `${mime} (MSE)`
+        const exposedMime = `${mime} (MSE)`
         setTimeout(() => {
-          let me = Array.from(document.querySelectorAll("video,audio")).find(
+          const me = Array.from(document.querySelectorAll("video,audio")).find(
             e => e.srcObject === ms || (urls && urls.has(e.src))
           )
           if (me) createPlaceholder(me, request)
@@ -70,21 +71,21 @@ if ("MediaSource" in window) {
     })
   } else if ("SecurityPolicyViolationEvent" in window) {
     // Chromium
-    let createPlaceholders = () => {
-      let request = notify(false)
-      for (let me of document.querySelectorAll("video,audio")) {
+    const createPlaceholders = () => {
+      const request = notify(false)
+      for (const me of document.querySelectorAll("video,audio")) {
         if (!(me.src || me.currentSrc) || me.src.startsWith("blob")) {
           createPlaceholder(me, request)
         }
       }
     }
-    let processedURIs = new Set()
-    let whenReady = false
+    const processedURIs = new Set()
+    const whenReady = false
     addEventListener(
       "securitypolicyviolation",
       e => {
         if (!e.isTrusted || ns.allows("media")) return
-        let { blockedURI, violatedDirective } = e
+        const { blockedURI, violatedDirective } = e
         if (
           blockedURI.startsWith("blob") &&
           violatedDirective.startsWith("media-src") &&

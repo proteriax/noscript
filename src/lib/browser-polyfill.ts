@@ -5,13 +5,13 @@ export {}
   } else if (typeof exports !== "undefined") {
     factory(module)
   } else {
-    var mod = {
+    const mod = {
       exports: {},
     }
     factory(mod)
     global.browser = mod.exports
   }
-})(this, function (module) {
+})(this, module => {
   /* webextension-polyfill - v0.3.1 - Tue Aug 21 2018 10:09:34 */
   /* -*- Mode: indent-tabs-mode: nil; js-indent-level: 2 -*- */
   /* vim: set sts=2 sw=2 et tw=80: */
@@ -735,9 +735,8 @@ export {}
        * @param {*} value The value to test.
        * @returns {boolean} True if the value is thenable.
        */
-      const isThenable = value => {
-        return value && typeof value === "object" && typeof value.then === "function"
-      }
+      const isThenable = value =>
+        value && typeof value === "object" && typeof value.then === "function"
 
       /**
        * Creates and returns a function which, when called, will resolve or reject
@@ -766,15 +765,13 @@ export {}
        * @returns {function}
        *        The generated callback function.
        */
-      const makeCallback = (promise, metadata) => {
-        return (...callbackArgs) => {
-          if (chrome.runtime.lastError) {
-            promise.reject(chrome.runtime.lastError)
-          } else if (metadata.singleCallbackArg || callbackArgs.length <= 1) {
-            promise.resolve(callbackArgs[0])
-          } else {
-            promise.resolve(callbackArgs)
-          }
+      const makeCallback = (promise, metadata) => (...callbackArgs) => {
+        if (chrome.runtime.lastError) {
+          promise.reject(chrome.runtime.lastError)
+        } else if (metadata.singleCallbackArg || callbackArgs.length <= 1) {
+          promise.resolve(callbackArgs[0])
+        } else {
+          promise.resolve(callbackArgs)
         }
       }
 
@@ -802,8 +799,8 @@ export {}
        * @returns {function(object, ...*)}
        *       The generated wrapper function.
        */
-      const wrapAsyncFunction = (name, metadata) => {
-        return function asyncFunctionWrapper(target, ...args) {
+      const wrapAsyncFunction = (name, metadata) =>
+        function asyncFunctionWrapper(target, ...args) {
           if (args.length < metadata.minArgs) {
             throw new Error(
               `Expected at least ${metadata.minArgs} ${pluralizeArguments(
@@ -851,7 +848,6 @@ export {}
             }
           })
         }
-      }
 
       /**
        * Wraps an existing method of the target object, so that calls to it are
@@ -872,15 +868,14 @@ export {}
        *        A Proxy object for the given method, which invokes the given wrapper
        *        method in its place.
        */
-      const wrapMethod = (target, method, wrapper) => {
-        return new Proxy(method, {
+      const wrapMethod = (target, method, wrapper) =>
+        new Proxy(method, {
           apply(targetMethod, thisObj, args) {
             return wrapper.call(thisObj, target, ...args)
           },
         })
-      }
 
-      let hasOwnProperty = Function.call.bind(Object.prototype.hasOwnProperty)
+      const hasOwnProperty = Function.call.bind(Object.prototype.hasOwnProperty)
 
       /**
        * Wraps an object in a Proxy which intercepts and wraps certain methods
@@ -906,8 +901,8 @@ export {}
        * @returns {Proxy<object>}
        */
       const wrapObject = (target, wrappers = {}, metadata = {}) => {
-        let cache = Object.create(null)
-        let handlers = {
+        const cache = Object.create(null)
+        const handlers = {
           has(proxyTarget, prop) {
             return prop in target || prop in cache
           },
@@ -933,7 +928,7 @@ export {}
               } else if (hasOwnProperty(metadata, prop)) {
                 // This is an async method that we have metadata for. Create a
                 // Promise wrapper for it.
-                let wrapper = wrapAsyncFunction(prop, metadata[prop])
+                const wrapper = wrapAsyncFunction(prop, metadata[prop])
                 value = wrapMethod(target, target[prop], wrapper)
               } else {
                 // This is a method that we don't know or care about. Return the
@@ -998,7 +993,7 @@ export {}
         // The proxy handlers themselves will still use the original `target`
         // instead of the `proxyTarget`, so that the methods and properties are
         // dereferenced via the original targets.
-        let proxyTarget = Object.create(target)
+        const proxyTarget = Object.create(target)
         return new Proxy(proxyTarget, handlers)
       }
 
@@ -1061,7 +1056,7 @@ export {}
           let didCallSendResponse = false
 
           let wrappedSendResponse
-          let sendResponsePromise = new Promise(resolve => {
+          const sendResponsePromise = new Promise(resolve => {
             wrappedSendResponse = function (response) {
               if (!loggedSendResponseDeprecationWarning) {
                 console.warn(SEND_RESPONSE_DEPRECATION_WARNING, new Error().stack)

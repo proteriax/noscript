@@ -1,6 +1,6 @@
 export {}
 
-var { Permissions, Policy, Sites } = (() => {
+const { Permissions, Policy, Sites } = (() => {
   const SECURE_DOMAIN_PREFIX = "§:"
   const SECURE_DOMAIN_RX = new RegExp(`^${SECURE_DOMAIN_PREFIX}`)
   const DOMAIN_RX = new RegExp(`(?:^\\w+://|${SECURE_DOMAIN_PREFIX})?([^/]*)`, "i")
@@ -8,7 +8,7 @@ var { Permissions, Policy, Sites } = (() => {
   const INTERNAL_SITE_RX = /^(?:(?:about|chrome|resource|(?:moz|chrome)-.*):|\[System)/
   const VALID_SITE_RX = /^(?:(?:(?:(?:http|ftp|ws)s?|file):)(?:(?:\/\/)[\w\u0100-\uf000][\w\u0100-\uf000.-]*[\w\u0100-\uf000.](?:$|\/))?|[\w\u0100-\uf000][\w\u0100-\uf000.-]*[\w\u0100-\uf000]$)/
 
-  let rxQuote = s => s.replace(/[.?*+^$[\]\\(){}|-]/g, "\\$&")
+  const rxQuote = s => s.replace(/[.?*+^$[\]\\(){}|-]/g, "\\$&")
 
   class Sites extends Map {
     static secureDomainKey(domain) {
@@ -75,7 +75,7 @@ var { Permissions, Policy, Sites } = (() => {
         ) {
           url.protocol = "https:"
         }
-        let path = url.pathname
+        const path = url.pathname
         siteKey = url.origin
         if (siteKey === "null") {
           ;[siteKey] = site.split(/[?#]/) // drop any search / hash segment
@@ -87,7 +87,7 @@ var { Permissions, Policy, Sites } = (() => {
     }
 
     static optimalKey(site) {
-      let { url, siteKey } = Sites.parse(site)
+      const { url, siteKey } = Sites.parse(site)
       if (url && url.protocol === "https:")
         return Sites.secureDomainKey(tld.getDomain(url.hostname))
       return Sites.origin(url) || siteKey
@@ -96,13 +96,13 @@ var { Permissions, Policy, Sites } = (() => {
     static origin(site) {
       if (!site) return ""
       try {
-        let objUrl =
+        const objUrl =
           typeof site === "object" && "origin" in site
             ? site
             : site.startsWith("chrome:")
             ? { origin: "chrome:" }
             : new URL(site)
-        let { origin } = objUrl
+        const { origin } = objUrl
         return origin === "null" ? Sites.cleanUrl(objUrl) || site : origin
       } catch (e) {
         error(e)
@@ -129,13 +129,13 @@ var { Permissions, Policy, Sites } = (() => {
       // domains are stored in punycode internally
       let s = typeof url === "string" ? url : (url && url.toString()) || ""
       if (s.startsWith(SECURE_DOMAIN_PREFIX)) s = s.substring(SECURE_DOMAIN_PREFIX.length)
-      let [, domain] = DOMAIN_RX.exec(s)
+      const [, domain] = DOMAIN_RX.exec(s)
       return domain.startsWith("xn--") ? s.replace(domain, punycode.toUnicode(domain)) : s
     }
 
     set(k, v) {
       if (!k || Sites.isInternal(k) || k === "§:") return this
-      let [, domain] = DOMAIN_RX.exec(k)
+      const [, domain] = DOMAIN_RX.exec(k)
       if (/[^\u0000-\u007f]/.test(domain)) {
         k = k.replace(domain, punycode.toASCII(domain))
       }
@@ -147,20 +147,20 @@ var { Permissions, Policy, Sites } = (() => {
         if (site instanceof URL) site = site.href
         if (this.has(site)) return site
 
-        let { url, siteKey } = Sites.parse(site)
+        const { url, siteKey } = Sites.parse(site)
 
         if (site !== siteKey && this.has(siteKey)) {
           return siteKey
         }
 
         if (url) {
-          let { origin } = url
+          const { origin } = url
           if (origin && origin !== "null" && origin < siteKey && this.has(origin)) {
             return origin
           }
-          let domain = this.domainMatch(url)
+          const domain = this.domainMatch(url)
           if (domain) return domain
-          let protocol = url.protocol
+          const protocol = url.protocol
           if (this.has(protocol)) {
             return protocol
           }
@@ -173,14 +173,14 @@ var { Permissions, Policy, Sites } = (() => {
       let { protocol, hostname } = url
       if (!hostname) return null
       if (!tld.preserveFQDNs) hostname = tld.normalize(hostname)
-      let secure = protocol === "https:"
-      let isIPv4 = IPV4_RX.test(hostname)
+      const secure = protocol === "https:"
+      const isIPv4 = IPV4_RX.test(hostname)
       for (let domain = hostname; ; ) {
         if (this.has(domain)) {
           return domain
         }
         if (secure) {
-          let ssDomain = Sites.secureDomainKey(domain)
+          const ssDomain = Sites.secureDomainKey(domain)
           if (this.has(ssDomain)) {
             return ssDomain
           }
@@ -188,14 +188,14 @@ var { Permissions, Policy, Sites } = (() => {
 
         if (isIPv4) {
           // subnet shortcuts
-          let dotPos = domain.lastIndexOf(".")
+          const dotPos = domain.lastIndexOf(".")
           if (!(dotPos > 3 || domain.indexOf(".") < dotPos)) {
             break // we want at least the 2 most significant bytes
           }
           domain = domain.substring(0, dotPos)
         } else {
           // (sub)domain matching
-          let dotPos = domain.indexOf(".")
+          const dotPos = domain.indexOf(".")
           if (dotPos === -1) {
             break
           }
@@ -212,7 +212,7 @@ var { Permissions, Policy, Sites } = (() => {
       let dry
       if (this.size) {
         dry = Object.create(null)
-        for (let [key, perms] of this) {
+        for (const [key, perms] of this) {
           dry[key] = perms.dry()
         }
       }
@@ -221,7 +221,7 @@ var { Permissions, Policy, Sites } = (() => {
 
     static hydrate(dry, obj = new Sites()) {
       if (dry) {
-        for (let [key, dryPerms] of Object.entries(dry)) {
+        for (const [key, dryPerms] of Object.entries(dry)) {
           obj.set(key, Permissions.hydrate(dryPerms))
         }
       }
@@ -245,16 +245,16 @@ var { Permissions, Policy, Sites } = (() => {
     }
 
     static hydrate(dry = {}, obj = null) {
-      let capabilities = new Set(dry.capabilities)
-      let contextual = Sites.hydrate(dry.contextual)
-      let temp = dry.temp
+      const capabilities = new Set(dry.capabilities)
+      const contextual = Sites.hydrate(dry.contextual)
+      const temp = dry.temp
       return obj
         ? Object.assign(obj, { capabilities, temp, contextual, _tempTwin: undefined })
         : new Permissions(capabilities, temp, contextual)
     }
 
     static typed(capability, type) {
-      let [capName] = capability.split(":")
+      const [capName] = capability.split(":")
       return `${capName}:${type}`
     }
 
@@ -271,12 +271,12 @@ var { Permissions, Policy, Sites } = (() => {
       return enabled
     }
     sameAs(otherPerms) {
-      let otherCaps = new Set(otherPerms.capabilities)
-      let theseCaps = this.capabilities
-      for (let c of theseCaps) {
+      const otherCaps = new Set(otherPerms.capabilities)
+      const theseCaps = this.capabilities
+      for (const c of theseCaps) {
         if (!otherCaps.delete(c)) return false
       }
-      for (let c of otherCaps) {
+      for (const c of otherCaps) {
         if (!theseCaps.has(c)) return false
       }
       return true
@@ -351,23 +351,23 @@ var { Permissions, Policy, Sites } = (() => {
   }
 
   function normalizePolicyOptions(dry) {
-    let options = Object.assign({}, dry)
-    for (let p of ["DEFAULT", "TRUSTED", "UNTRUSTED"]) {
+    const options = Object.assign({}, dry)
+    for (const p of ["DEFAULT", "TRUSTED", "UNTRUSTED"]) {
       options[p] = dry[p] instanceof Permissions ? dry[p] : Permissions.hydrate(dry[p])
       options[p].temp = false // preserve immutability of presets persistence
     }
     if (typeof dry.sites === "object" && !(dry.sites instanceof Sites)) {
-      let { trusted, untrusted, temp, custom } = dry.sites
-      let sites = Sites.hydrate(custom)
-      for (let key of trusted) {
+      const { trusted, untrusted, temp, custom } = dry.sites
+      const sites = Sites.hydrate(custom)
+      for (const key of trusted) {
         sites.set(key, options.TRUSTED)
       }
-      for (let key of untrusted) {
+      for (const key of untrusted) {
         sites.set(Sites.toggleSecureDomainKey(key, false), options.UNTRUSTED)
       }
       if (temp) {
-        let tempPreset = options.TRUSTED.tempTwin
-        for (let key of temp) sites.set(key, tempPreset)
+        const tempPreset = options.TRUSTED.tempTwin
+        for (const key of temp) sites.set(key, tempPreset)
       }
       options.sites = sites
     }
@@ -376,9 +376,9 @@ var { Permissions, Policy, Sites } = (() => {
   }
 
   function enforceImmutable(policy) {
-    for (let [preset, filter] of Object.entries(Permissions.IMMUTABLE)) {
-      let presetCaps = policy[preset].capabilities
-      for (let [cap, value] of Object.entries(filter)) {
+    for (const [preset, filter] of Object.entries(Permissions.IMMUTABLE)) {
+      const presetCaps = policy[preset].capabilities
+      for (const [cap, value] of Object.entries(filter)) {
         if (value) presetCaps.add(cap)
         else presetCaps.delete(cap)
       }
@@ -397,13 +397,13 @@ var { Permissions, Policy, Sites } = (() => {
     }
 
     dry(includeTemp = false) {
-      let trusted = [],
+      const trusted = [],
         temp = [],
         untrusted = [],
         custom = Object.create(null)
 
       const { DEFAULT, TRUSTED, UNTRUSTED } = this
-      for (let [key, perms] of this.sites) {
+      for (const [key, perms] of this.sites) {
         if (!includeTemp && perms.temp) {
           continue
         }
@@ -424,7 +424,7 @@ var { Permissions, Policy, Sites } = (() => {
         }
       }
 
-      let sites = {
+      const sites = {
         trusted,
         untrusted,
         custom,
@@ -449,16 +449,16 @@ var { Permissions, Policy, Sites } = (() => {
     }
 
     static explodeKey(requestKey) {
-      let [, type, url, documentUrl] = /(\w+)@([^<]+)<(.*)/.exec(requestKey)
+      const [, type, url, documentUrl] = /(\w+)@([^<]+)<(.*)/.exec(requestKey)
       return { url, type, documentUrl }
     }
 
     set(site, perms, cascade = false) {
-      let sites = this.sites
+      const sites = this.sites
       let { url, siteKey } = Sites.parse(site)
 
       sites.delete(siteKey)
-      let wideSiteKey = Sites.toggleSecureDomainKey(siteKey, false)
+      const wideSiteKey = Sites.toggleSecureDomainKey(siteKey, false)
 
       if (perms === this.UNTRUSTED) {
         cascade = true
@@ -484,7 +484,7 @@ var { Permissions, Policy, Sites } = (() => {
 
     get(site, ctx = null) {
       let perms, contextMatch
-      let siteMatch =
+      const siteMatch =
         !(this.onlySecure && /^\w+tp:/i.test(site)) && this.sites.match(site)
       if (siteMatch) {
         perms = this.sites.get(siteMatch)
@@ -508,9 +508,9 @@ var { Permissions, Policy, Sites } = (() => {
     }
 
     cascadeRestrictions(perms, topUrl) {
-      let topPerms = this.get(topUrl, topUrl).perms
+      const topPerms = this.get(topUrl, topUrl).perms
       if (topPerms !== perms) {
-        let topCaps = topPerms.capabilities
+        const topCaps = topPerms.capabilities
         perms = new Permissions(
           [...perms.capabilities].filter(c => topCaps.has(c)),
           perms.temp,

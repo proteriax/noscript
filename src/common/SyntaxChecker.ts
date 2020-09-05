@@ -27,7 +27,7 @@ class SyntaxChecker {
     ) {
       try {
         return eval(s)
-      } catch (e) {}
+      } catch {}
     }
     return null
   }

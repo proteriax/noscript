@@ -1,7 +1,8 @@
 export {}
-let handlers = new Set()
 
-let dispatch = (msg, sender) => {
+const handlers = new Set()
+
+const dispatch = (msg, sender) => {
   let { __meta, _messageName } = msg
   if (!__meta) {
     // legacy message from embedder or library? ignore it
@@ -13,11 +14,11 @@ let dispatch = (msg, sender) => {
   }
   delete msg.__meta
   delete msg._messageName
-  let { name } = __meta
+  const { name } = __meta
   let responderFound = false
   let exception = null
-  for (let h of handlers) {
-    let f = h[name]
+  for (const h of handlers) {
+    const f = h[name]
 
     if (typeof f === "function") {
       let result
@@ -46,21 +47,23 @@ let dispatch = (msg, sender) => {
   }
 }
 
-var Messages = {
+const Messages = {
   addHandler(handler) {
-    let originalSize = handlers.size
+    const originalSize = handlers.size
     handlers.add(handler)
     if (originalSize === 0 && handlers.size === 1) {
       browser.runtime.onMessage.addListener(dispatch)
     }
   },
+
   removeHandler(handler) {
-    let originalSize = handlers.size
+    const originalSize = handlers.size
     handlers.delete(handler)
     if (originalSize === 1 && handlers.size === 0) {
       browser.runtime.onMessage.removeListener(dispatch)
     }
   },
+
   async send(name, args = {}, recipientInfo = null) {
     args.__meta = { name, recipientInfo }
     args._messageName = name // legacy protocol, for embedders
@@ -71,6 +74,7 @@ var Messages = {
     }
     return await browser.runtime.sendMessage(args)
   },
+
   isMissingEndpoint(error) {
     return (
       error &&

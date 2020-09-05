@@ -19,7 +19,7 @@ export {}
    * @param {Object} [options={}] The options to override the defaults
    */
   function FastClick(layer, options) {
-    var oldOnClick
+    let oldOnClick
 
     options = options || {}
 
@@ -104,7 +104,7 @@ export {}
       }
     }
 
-    var methods = [
+    const methods = [
       "onMouse",
       "onClick",
       "onTouchStart",
@@ -112,8 +112,8 @@ export {}
       "onTouchEnd",
       "onTouchCancel",
     ]
-    var context = this
-    for (var i = 0, l = methods.length; i < l; i++) {
+    const context = this
+    for (let i = 0, l = methods.length; i < l; i++) {
       context[methods[i]] = bind(context[methods[i]], context)
     }
 
@@ -135,7 +135,7 @@ export {}
     // layer when they are cancelled.
     if (!Event.prototype.stopImmediatePropagation) {
       layer.removeEventListener = function (type, callback, capture) {
-        var rmv = Node.prototype.removeEventListener
+        const rmv = Node.prototype.removeEventListener
         if (type === "click") {
           rmv.call(layer, type, callback.hijacked || callback, capture)
         } else {
@@ -144,7 +144,7 @@ export {}
       }
 
       layer.addEventListener = function (type, callback, capture) {
-        var adv = Node.prototype.addEventListener
+        const adv = Node.prototype.addEventListener
         if (type === "click") {
           adv.call(
             layer,
@@ -172,7 +172,7 @@ export {}
       oldOnClick = layer.onclick
       layer.addEventListener(
         "click",
-        function (event) {
+        event => {
           oldOnClick(event)
         },
         false
@@ -186,7 +186,7 @@ export {}
    *
    * @type boolean
    */
-  var deviceIsWindowsPhone = navigator.userAgent.indexOf("Windows Phone") >= 0
+  const deviceIsWindowsPhone = navigator.userAgent.indexOf("Windows Phone") >= 0
 
   /**
    * Android requires exceptions.
@@ -201,28 +201,28 @@ export {}
    *
    * @type boolean
    */
-  var deviceIsIOS = /iP(ad|hone|od)/.test(navigator.userAgent) && !deviceIsWindowsPhone
+  const deviceIsIOS = /iP(ad|hone|od)/.test(navigator.userAgent) && !deviceIsWindowsPhone
 
   /**
    * iOS 4 requires an exception for select elements.
    *
    * @type boolean
    */
-  var deviceIsIOS4 = deviceIsIOS && /OS 4_\d(_\d)?/.test(navigator.userAgent)
+  const deviceIsIOS4 = deviceIsIOS && /OS 4_\d(_\d)?/.test(navigator.userAgent)
 
   /**
    * iOS 6.0-7.* requires the target element to be manually derived
    *
    * @type boolean
    */
-  var deviceIsIOSWithBadTarget = deviceIsIOS && /OS [6-7]_\d/.test(navigator.userAgent)
+  const deviceIsIOSWithBadTarget = deviceIsIOS && /OS [6-7]_\d/.test(navigator.userAgent)
 
   /**
    * BlackBerry requires exceptions.
    *
    * @type boolean
    */
-  var deviceIsBlackBerry10 = navigator.userAgent.indexOf("BB10") > 0
+  const deviceIsBlackBerry10 = navigator.userAgent.indexOf("BB10") > 0
 
   /**
    * Determine whether a given element requires a native click.
@@ -294,7 +294,7 @@ export {}
    * @param {Event} event
    */
   FastClick.prototype.sendClick = function (targetElement, event) {
-    var clickEvent, touch
+    let clickEvent, touch
 
     // On some Android devices activeElement needs to be blurred otherwise the synthetic click will have no effect (#24)
     if (document.activeElement && document.activeElement !== targetElement) {
@@ -339,7 +339,7 @@ export {}
    * @param {EventTarget|Element} targetElement
    */
   FastClick.prototype.focus = function (targetElement) {
-    var length
+    let length
 
     // Issue #160: on iOS 7, some input elements (e.g. date datetime month) throw a vague TypeError on setSelectionRange. These elements don't have an integer value for the selectionStart and selectionEnd properties, but unfortunately that can't be used for detection because accessing the properties also throws a TypeError. Just check the type instead. Filed as Apple bug #15122724.
     if (
@@ -363,7 +363,7 @@ export {}
    * @param {EventTarget|Element} targetElement
    */
   FastClick.prototype.updateScrollParent = function (targetElement) {
-    var scrollParent, parentElement
+    let scrollParent, parentElement
 
     scrollParent = targetElement.fastClickScrollParent
 
@@ -408,7 +408,7 @@ export {}
    * @returns {boolean}
    */
   FastClick.prototype.onTouchStart = function (event) {
-    var targetElement, touch, selection
+    let targetElement, touch, selection
 
     // Ignore multiple touches, otherwise pinch-to-zoom is prevented if both fingers are on the FastClick element (issue #111).
     if (event.targetTouches.length > 1) {
@@ -473,7 +473,7 @@ export {}
    * @returns {boolean}
    */
   FastClick.prototype.touchHasMoved = function (event) {
-    var touch = event.changedTouches[0],
+    const touch = event.changedTouches[0],
       boundary = this.touchBoundary
 
     if (
@@ -540,7 +540,7 @@ export {}
    * @returns {boolean}
    */
   FastClick.prototype.onTouchEnd = function (event) {
-    var forElement,
+    let forElement,
       trackingClickStart,
       targetTagName,
       scrollParent,
@@ -706,7 +706,7 @@ export {}
    * @returns {boolean}
    */
   FastClick.prototype.onClick = function (event) {
-    var permitted
+    let permitted
 
     // It's possible for another FastClick-like library delivered with third-party code to fire a click event before FastClick does (issue #44). In that case, set the click-tracking flag back to false and return early. This will cause onTouchEnd to return early.
     if (this.trackingClick) {
@@ -737,7 +737,7 @@ export {}
    * @returns {void}
    */
   FastClick.prototype.destroy = function () {
-    var layer = this.layer
+    const layer = this.layer
 
     if (deviceIsAndroid) {
       layer.removeEventListener("mouseover", this.onMouse, true)
@@ -758,10 +758,10 @@ export {}
    * @param {Element} layer The layer to listen on
    */
   FastClick.notNeeded = function (layer) {
-    var metaViewport
-    var chromeVersion
-    var blackberryVersion
-    var firefoxVersion
+    let metaViewport
+    let chromeVersion
+    let blackberryVersion
+    let firefoxVersion
 
     // Devices that don't support touch don't need FastClick
     if (typeof window.ontouchstart === "undefined") {
@@ -864,9 +864,7 @@ export {}
 
   if (typeof define === "function" && typeof define.amd === "object" && define.amd) {
     // AMD. Register as an anonymous module.
-    define(function () {
-      return FastClick
-    })
+    define(() => FastClick)
   } else if (typeof module !== "undefined" && module.exports) {
     module.exports = FastClick.attach
     module.exports.FastClick = FastClick

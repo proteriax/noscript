@@ -1,24 +1,24 @@
 export {}
 
-var Storage = (() => {
-  let chunksKey = k => `${k}/CHUNKS`
+const Storage = (() => {
+  const chunksKey = (k: string) => `${k}/CHUNKS`
 
   async function safeOp(op, type, keys) {
-    let sync = type === "sync"
+    const sync = type === "sync"
 
     try {
       if (sync) {
-        let remove = op === "remove"
+        const remove = op === "remove"
         if (remove || op === "get") {
           keys = [].concat(keys) // don't touch the passed argument
           let mergeResults = {}
-          let localFallback = await getLocalFallback()
+          const localFallback = await getLocalFallback()
           if (localFallback.size) {
-            let localKeys = keys.filter(k => localFallback.has(k))
+            const localKeys = keys.filter(k => localFallback.has(k))
             if (localKeys.length) {
               if (remove) {
                 await browser.storage.local.remove(localKeys)
-                for (let k of localKeys) {
+                for (const k of localKeys) {
                   localFallback.delete(k)
                 }
                 await setLocalFallback(localFallback)
@@ -31,28 +31,28 @@ var Storage = (() => {
 
           if (keys.length) {
             // we may not have non-fallback keys anymore
-            let chunkCounts = Object.entries(
+            const chunkCounts = Object.entries(
               await browser.storage.sync.get(keys.map(chunksKey))
             ).map(([k, count]) => [k.split("/")[0], count])
             if (chunkCounts.length) {
-              let chunkedKeys = []
+              const chunkedKeys = []
               for (let [k, count] of chunkCounts) {
                 // prepare to fetch all the chunks at once
                 while (count-- > 0) chunkedKeys.push(`${k}/${count}`)
               }
               if (remove) {
-                let doomedKeys = keys
+                const doomedKeys = keys
                   .concat(chunkCounts.map(([k, count]) => chunksKey(k)))
                   .concat(chunkedKeys)
                 return await browser.storage.sync.remove(doomedKeys)
               } else {
-                let chunks = await browser.storage.sync.get(chunkedKeys)
-                for (let [k, count] of chunkCounts) {
-                  let orderedChunks = []
+                const chunks = await browser.storage.sync.get(chunkedKeys)
+                for (const [k, count] of chunkCounts) {
+                  const orderedChunks = []
                   for (let j = 0; j < count; j++) {
                     orderedChunks.push(chunks[`${k}/${j}`])
                   }
-                  let whole = orderedChunks.join("")
+                  const whole = orderedChunks.join("")
                   try {
                     mergeResults[k] = JSON.parse(whole)
                     keys.splice(keys.indexOf(k), 1) // remove from "main" keys
@@ -72,16 +72,16 @@ var Storage = (() => {
           // Firefox Sync's max object BYTEs size is 16384, Chrome's 8192.
           // Rather than mesuring actual bytes, we play it safe by halving then
           // lowest to cope with escapes / multibyte characters.
-          let removeKeys = []
-          for (let k of Object.keys(keys)) {
-            let s = JSON.stringify(keys[k])
-            let chunksCountKey = chunksKey(k)
+          const removeKeys = []
+          for (const k of Object.keys(keys)) {
+            const s = JSON.stringify(keys[k])
+            const chunksCountKey = chunksKey(k)
             let oldCount =
               (await browser.storage.sync.get(chunksCountKey)[chunksCountKey]) || 0
             let count
             if (s.length > MAX_ITEM_SIZE) {
               count = Math.ceil(s.length / MAX_ITEM_SIZE)
-              let chunks = {
+              const chunks = {
                 [chunksCountKey]: count,
               }
               for (let j = 0, o = 0; j < count; ++j, o += MAX_ITEM_SIZE) {
@@ -103,12 +103,12 @@ var Storage = (() => {
         }
       }
 
-      let ret = await browser.storage[type][op](keys)
+      const ret = await browser.storage[type][op](keys)
       if (sync && op === "set") {
-        let localFallback = await getLocalFallback()
-        let size = localFallback.size
+        const localFallback = await getLocalFallback()
+        const size = localFallback.size
         if (size > 0) {
-          for (let k of Object.keys(keys)) {
+          for (const k of Object.keys(keys)) {
             localFallback.delete(k)
           }
           if (size > localFallback.size) {
@@ -121,13 +121,13 @@ var Storage = (() => {
       error(e, "%s.%s(%o)", type, op, keys)
       if (sync) {
         debug("Sync disabled? Falling back to local storage (%s %o)", op, keys)
-        let localFallback = await getLocalFallback()
-        let failedKeys = Array.isArray(keys)
+        const localFallback = await getLocalFallback()
+        const failedKeys = Array.isArray(keys)
           ? keys
           : typeof keys === "string"
           ? [keys]
           : Object.keys(keys)
-        for (let k of failedKeys) {
+        for (const k of failedKeys) {
           localFallback.add(k)
         }
         await setLocalFallback(localFallback)
@@ -144,7 +144,7 @@ var Storage = (() => {
     return await browser.storage.local.set({ [LFK_NAME]: [...keys] })
   }
   async function getLocalFallback() {
-    let keys = (await browser.storage.local.get(LFK_NAME))[LFK_NAME]
+    const keys = (await browser.storage.local.get(LFK_NAME))[LFK_NAME]
     return new Set(Array.isArray(keys) ? keys : [])
   }
 
@@ -166,8 +166,8 @@ var Storage = (() => {
     },
 
     async isChunked(key) {
-      let ccKey = chunksKey(key)
-      let data = await browser.storage.sync.get([key, ccKey])
+      const ccKey = chunksKey(key)
+      const data = await browser.storage.sync.get([key, ccKey])
       return data[key] === "[CHUNKED]" && parseInt(data[ccKey])
     },
   }

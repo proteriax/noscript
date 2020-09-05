@@ -1,7 +1,7 @@
 export {}
 {
-  let mozWebExtUrl = document.URL.startsWith("moz-")
-  let isMozilla = mozWebExtUrl || typeof window.wrappedJSObject === "object"
+  const mozWebExtUrl = document.URL.startsWith("moz-")
+  const isMozilla = mozWebExtUrl || typeof window.wrappedJSObject === "object"
   let mobile = false
   if (isMozilla) {
     if (mozWebExtUrl) {

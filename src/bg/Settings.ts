@@ -1,10 +1,10 @@
 export {}
 
-export var Settings = {
+export const Settings = {
   async import(data) {
     // figure out whether it's just a whitelist, a legacy backup or a "Quantum" export
     try {
-      let json = JSON.parse(data)
+      const json = JSON.parse(data)
       if (json.whitelist) {
         return await this.importLegacy(json)
       }
@@ -38,12 +38,12 @@ export var Settings = {
   async importLists(data) {
     await include("/legacy/Legacy.js")
     try {
-      let [trusted, untrusted] = Legacy.extractLists(data.split("[UNTRUSTED]"))
-      let policy = ns.policy
-      for (let site of trusted) {
+      const [trusted, untrusted] = Legacy.extractLists(data.split("[UNTRUSTED]"))
+      const policy = ns.policy
+      for (const site of trusted) {
         policy.set(site, policy.TRUSTED)
       }
-      for (let site of untrusted) {
+      for (const site of untrusted) {
         policy.set(site, policy.UNTRUSTED, true)
       }
       await ns.savePolicy()
@@ -75,7 +75,7 @@ export var Settings = {
   },
 
   async update(settings) {
-    let {
+    const {
       policy,
       xssUserChoices,
       tabId,
@@ -84,7 +84,7 @@ export var Settings = {
       isTorBrowser,
     } = settings
     debug("Received settings ", settings)
-    let oldDebug = ns.local.debug
+    const oldDebug = ns.local.debug
 
     let reloadOptionsUI = false
 
@@ -109,7 +109,7 @@ export var Settings = {
         reloadOptionsUI = true
       }
 
-      let torBrowserSettings = {
+      const torBrowserSettings = {
         local: {
           isTorBrowser: true,
         },
@@ -117,7 +117,7 @@ export var Settings = {
           cascadeRestrictions: true,
         },
       }
-      for (let [storage, prefs] of Object.entries(torBrowserSettings)) {
+      for (const [storage, prefs] of Object.entries(torBrowserSettings)) {
         settings[storage] = Object.assign(settings[storage] || {}, prefs)
       }
     }
@@ -185,7 +185,7 @@ export var Settings = {
 
   async reloadOptionsUI() {
     try {
-      for (let t of await browser.tabs.query({
+      for (const t of await browser.tabs.query({
         url: browser.extension.getURL(browser.runtime.getManifest().options_ui.page),
       })) {
         browser.tabs.reload(t.id)

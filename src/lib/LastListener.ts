@@ -17,8 +17,8 @@ class LastListener {
     this.observed = observed
     this.listener = listener
     this.extras = extras
-    let ww = (this._wrapped = [listener, listener].map(l => {
-      let w = (...args) => {
+    const ww = (this._wrapped = [listener, listener].map(l => {
+      const w = (...args) => {
         if (this.observed.hasListener(w._other)) {
           this.observed.removeListener(w)
         } else if (this.installed) {
@@ -44,6 +44,6 @@ class LastListener {
 
   uninstall() {
     this.installed = false
-    for (let l of this._wrapped) this.observed.removeListener(l)
+    for (const l of this._wrapped) this.observed.removeListener(l)
   }
 }

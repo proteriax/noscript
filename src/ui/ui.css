@@ -1,4 +1,3 @@
-
 body {
   font-family: system-ui, sans-serif;
   font: -moz-use-system-font;
@@ -29,27 +28,29 @@ html.mobile .desktop {
   display: none !important;
 }
 
-html:not(.tor) .tor, html.tor .not-tor {
+html:not(.tor) .tor,
+html.tor .not-tor {
   display: none;
 }
-html.tor .tor, html:not(.tor) .not-tor {
+html.tor .tor,
+html:not(.tor) .not-tor {
   display: initial;
 }
 
 .opt-group {
   display: flex;
   flex-flow: row wrap;
-  border-bottom: 1px solid rgba(255, 255, 255, .5);
-  padding: .5em 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+  padding: 0.5em 0;
 }
 
 .opt-group:last-child {
   border-bottom: none;
-  margin-bottom: .5em;
+  margin-bottom: 0.5em;
 }
 
 .opt-group > span {
-  margin: 0 .5em;
+  margin: 0 0.5em;
   display: flex;
   flex-flow: row;
   align-items: center;
@@ -76,43 +77,42 @@ html.tor .tor, html:not(.tor) .not-tor {
   }
 
   #sites .presets input.preset {
-     min-width: 0 !important;
-     background-color: none !important;
-     margin-top: 0;
-     font-weight: bold;
+    min-width: 0 !important;
+    background-color: none !important;
+    margin-top: 0;
+    font-weight: bold;
   }
 
-
-  #sites .customizing input.preset:checked  {
+  #sites .customizing input.preset:checked {
     margin-left: 0;
   }
 
   #presets .presets input.preset + label {
-     font-size: 60%;
-     position: absolute !important;
-     text-align: right;
-     padding: 0 !important;
-     margin: 0 !important;
-     display: block !important;
-     width: 5.5em !important;
-     z-index: 1000;
-     top: 1em;
-     left: 4em !important;
-     text-shadow: 1px 1px white, -1px -1px white;
-   }
+    font-size: 60%;
+    position: absolute !important;
+    text-align: right;
+    padding: 0 !important;
+    margin: 0 !important;
+    display: block !important;
+    width: 5.5em !important;
+    z-index: 1000;
+    top: 1em;
+    left: 4em !important;
+    text-shadow: 1px 1px white, -1px -1px white;
+  }
 
-   #sites .presets input.preset:checked + label {
-     z-index: 1000;
-     font-size: 60%;
-     top: 3em;
-     left: -3em !important;
-     margin: 0 !important;
-     padding: 0 !important;
-     text-align: center !important;
-     display: block !important;
-     position: absolute;
-     width: 10em !important;
-     overflow: visible !important;
+  #sites .presets input.preset:checked + label {
+    z-index: 1000;
+    font-size: 60%;
+    top: 3em;
+    left: -3em !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    text-align: center !important;
+    display: block !important;
+    position: absolute;
+    width: 10em !important;
+    overflow: visible !important;
   }
 
   .presets input.preset:checked ~ input.temp {
@@ -137,7 +137,7 @@ html.tor .tor, html:not(.tor) .not-tor {
   }
 
   #sites .customizing input.preset:checked + label {
-    text-align:right !important;
+    text-align: right !important;
     padding-right: 1em !important;
     right: 1em !important;
     left: auto !important;
@@ -155,15 +155,13 @@ html.tor .tor, html:not(.tor) .not-tor {
     word-break: break-all;
     letter-spacing: -0.2mm;
     font-size: 80%;
-   }
-
+  }
 }
 
 #sites .customizing .presets {
   padding-bottom: 0 !important;
   margin-bottom: 0 !important;
 }
-
 
 input[type="text"] {
   border: 1px solid;
@@ -182,9 +180,9 @@ input[type="checkbox"] {
   border-spacing: 0;
   width: 100%;
   overflow-y: auto;
-
 }
-.sites tr, .sites td {
+.sites tr,
+.sites td {
   margin: 0;
   padding: 0;
   border: none;
@@ -196,31 +194,42 @@ html:not(.mobile) .sites > tr.site:hover {
 html:not(.mobile) .sites > tr.site:focus-within {
   background: #ccc;
 }
-.sites > tr:nth-child(even) {background: #fff}
-.sites > tr:nth-child(odd) {background: #eee}
+.sites > tr:nth-child(even) {
+  background: #fff;
+}
+.sites > tr:nth-child(odd) {
+  background: #eee;
+}
 @media (prefers-color-scheme: dark) {
   html:not(.mobile) .sites > tr.site:focus-within {
     background: #333;
   }
-  .sites > tr:nth-child(even) {background: #111}
-  .sites > tr:nth-child(odd) {background: #222}
+  .sites > tr:nth-child(even) {
+    background: #111;
+  }
+  .sites > tr:nth-child(odd) {
+    background: #222;
+  }
 }
 
 .site .url {
-    padding: 0 0 0 0.5em;
-    color: #000;
-    vertical-align: top;
+  padding: 0 0 0 0.5em;
+  color: #000;
+  vertical-align: top;
 }
-.site .url .protocol { display: none }
+.site .url .protocol {
+  display: none;
+}
 
-.site .url .domain { cursor: help }
+.site .url .domain {
+  cursor: help;
+}
 
 [data-key="host"] .full-address span .protocol,
 [data-key="domain"] .full-address span .host,
 [data-key="domain"] .full-address span .protocol {
   border: none;
 }
-
 
 .site .url[data-key="domain"] .domain,
 .site .url[data-key="host"] .domain,
@@ -254,8 +263,8 @@ input.https-only {
   background-position: bottom;
   width: 2em;
   height: 2em;
-  margin: -.25em 0;
-  padding:0;
+  margin: -0.25em 0;
+  padding: 0;
   cursor: pointer;
 }
 input.https-only:checked {
@@ -269,10 +278,10 @@ label.https-only {
   color: #555;
 }
 
-[data-preset="UNTRUSTED"] .https-only, [data-preset="DEFAULT"] .https-only {
+[data-preset="UNTRUSTED"] .https-only,
+[data-preset="DEFAULT"] .https-only {
   visibility: hidden;
 }
-
 
 td.presets {
   font-size: 1em;
@@ -290,7 +299,9 @@ span.preset {
   font-size: 1em;
 }
 
-.preset label, .preset input, .preset button {
+.preset label,
+.preset input,
+.preset button {
   cursor: pointer;
 }
 
@@ -304,8 +315,8 @@ span.preset {
   width: 1.5em;
   height: 1.5em;
   outline: 0;
-  opacity: .5;
-  margin: 0 .5em 0.13em .5em;
+  opacity: 0.5;
+  margin: 0 0.5em 0.13em 0.5em;
 }
 
 #presets-sizer {
@@ -321,7 +332,9 @@ span.preset {
   display: block;
 }
 
-.presets input.preset:checked, #presets input.preset, #presets-sizer input.preset {
+.presets input.preset:checked,
+#presets input.preset,
+#presets-sizer input.preset {
   opacity: 1;
   transform: none;
   min-width: 9.38em;
@@ -329,7 +342,9 @@ span.preset {
   border-radius: 0.5em;
 }
 @media (prefers-color-scheme: dark) {
-  .presets input.preset:checked, #presets input.preset, #presets-sizer input.preset {
+  .presets input.preset:checked,
+  #presets input.preset,
+  #presets-sizer input.preset {
     background-color: #444;
   }
 }
@@ -348,41 +363,46 @@ span.preset {
   overflow: hidden;
   display: none;
   text-transform: uppercase;
-  opacity: .6;
+  opacity: 0.6;
   position: absolute;
   left: 0em;
   padding-left: 2.5em;
-
 }
 
 .presets input.preset[value^="T"] + label {
   text-transform: none;
 }
 
-.presets input.preset:checked + label, #presets .presets label {
+.presets input.preset:checked + label,
+#presets .presets label {
   opacity: 1;
   width: 80%;
   display: inline-flex;
 }
 
 #presets-sizer .presets label {
-   position: static;
-   display: block;
-   width: auto;
-   overflow: visible;
+  position: static;
+  display: block;
+  width: auto;
+  overflow: visible;
 }
 
-input:focus, button:focus, input:focus, a:focus {
-  --focus-color:    #bdf8;
+input:focus,
+button:focus,
+input:focus,
+a:focus {
+  --focus-color: #bdf8;
   outline: 0;
-  filter:
-    drop-shadow(3px 3px 3px var(--focus-color))
+  filter: drop-shadow(3px 3px 3px var(--focus-color))
     drop-shadow(-3px 3px 3px var(--focus-color))
     drop-shadow(3px -3px 3px var(--focus-color))
     drop-shadow(-3px -3px 3px var(--focus-color));
 }
 @media (prefers-color-scheme: dark) {
-  input:focus, button:focus, input:focus, a:focus {
+  input:focus,
+  button:focus,
+  input:focus,
+  a:focus {
     --focus-color: rgba(34, 145, 255, 0.5333333333);
   }
 }
@@ -396,13 +416,13 @@ input.preset[value="T_TRUSTED"] {
 }
 
 input.preset[value="TRUSTED"] {
-  background-image: url(/img/ui-yes64.png)
+  background-image: url(/img/ui-yes64.png);
 }
 input.preset[value="UNTRUSTED"] {
-  background-image: url(/img/ui-black64.png)
+  background-image: url(/img/ui-black64.png);
 }
 input.preset[value="CUSTOM"] {
-  background-image: url(/img/ui-custom64.png)
+  background-image: url(/img/ui-custom64.png);
 }
 
 input.temp {
@@ -435,14 +455,14 @@ input.temp + label {
 }
 
 input.preset:checked ~ input.temp {
-  opacity: .5;
-  right: .5em;
+  opacity: 0.5;
+  right: 0.5em;
   pointer-events: all;
 }
 
 .presets input.preset:checked ~ input.temp:checked {
- opacity: 1 !important;
- background-size: 100%;
+  opacity: 1 !important;
+  background-size: 100%;
 }
 
 #presets input.preset:not(:checked) {
@@ -456,17 +476,23 @@ input.preset:checked ~ input.temp {
 #presets input.preset {
   box-shadow: 0 1px 1px #888;
 }
-.customizing input.preset:checked, #presets input.preset:checked, .customizer fieldset {
+.customizing input.preset:checked,
+#presets input.preset:checked,
+.customizer fieldset {
   background-color: #eee;
   border-radius: 0.5em 0.5em 0 0;
   margin: 0 0.06em 0.06em 0.06em;
 }
 @media (prefers-color-scheme: dark) {
-  .customizing input.preset:checked, #presets input.preset:checked, .customizer fieldset {
+  .customizing input.preset:checked,
+  #presets input.preset:checked,
+  .customizer fieldset {
     background-color: #555;
   }
 }
-.customizing input.preset:checked, #presets input.preset, #presets input.preset:checked  {
+.customizing input.preset:checked,
+#presets input.preset,
+#presets input.preset:checked {
   margin: 0 1em -0.2em 1em;
   border-radius: 0.5em 0.5em 0 0;
 }
@@ -489,7 +515,7 @@ span.cap {
   display: inline-flex;
 }
 
-.customizer.closed .customizer-controls   {
+.customizer.closed .customizer-controls {
   height: 0;
   overflow: hidden;
 }

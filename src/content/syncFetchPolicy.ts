@@ -1,12 +1,12 @@
 export {}
 ;(this.ns || (this.ns = {})).syncFetchPolicy = function () {
-  let url = document.URL
+  const url = document.URL
 
   // Here we've got no CSP header yet (file: or ftp: URL), we need one
   // injected in the DOM as soon as possible.
   debug("No CSP yet for non-HTTP document load: fetching policy synchronously...")
 
-  let syncFetch = callback => {
+  const syncFetch = callback => {
     browser.runtime.sendSyncMessage({ id: "fetchPolicy", url, contextUrl: url }, callback)
   }
   debug("Initial readyState and body", document.readyState, document.body)
@@ -18,7 +18,7 @@ export {}
       DocumentFreezer.freeze()
 
       ns.on("capabilities", () => {
-        let { readyState } = document
+        const { readyState } = document
         debug(
           "Readystate: %s, suppressedScripts = %s, canScript = %s",
           readyState,
@@ -26,7 +26,7 @@ export {}
           ns.canScript
         )
         // CSP works on HTML documents only on Mozilla: we'll keep frozen elsewhere
-        let honorsCSP = document instanceof HTMLDocument
+        const honorsCSP = document instanceof HTMLDocument
 
         if (!ns.canScript) {
           if (honorsCSP) {
@@ -42,18 +42,18 @@ export {}
           return
         }
 
-        let softReload = ev => {
+        const softReload = ev => {
           try {
             //let html = document.documentElement.outerHTML;
             debug("Soft reload", ev) // DEV_ONLY
             try {
-              let doc = window.wrappedJSObject.document
+              const doc = window.wrappedJSObject.document
               removeEventListener("DOMContentLoaded", softReload, true)
               doc.open()
               console.debug("Opened", doc.documentElement)
               DocumentFreezer.unfreeze()
               ;(async () => {
-                let html = await (await fetch(document.URL)).text()
+                const html = await (await fetch(document.URL)).text()
                 doc.write(html)
                 doc.close()
                 debug("Written", html)
@@ -62,10 +62,10 @@ export {}
               debug("Can't use document.write(), XML document?")
               try {
                 DocumentFreezer.unfreeze()
-                let scripts = [],
+                const scripts = [],
                   deferred = []
                 // push deferred scripts, if any, to the end
-                for (let s of [...document.querySelectorAll("script")]) {
+                for (const s of [...document.querySelectorAll("script")]) {
                   ;(s.defer && !s.text ? deferred : scripts).push(s)
                   s.addEventListener("beforescriptexecute", e => {
                     console.debug("Suppressing", script)
@@ -73,22 +73,23 @@ export {}
                   })
                 }
                 if (deferred.length) scripts.push(...deferred)
-                let doneEvents = ["afterscriptexecute", "load", "error"]
+                const doneEvents = ["afterscriptexecute", "load", "error"]
                 ;(async () => {
-                  for (let s of scripts) {
-                    let clone = document.createElement("script")
-                    for (let a of s.attributes) {
+                  for (const s of scripts) {
+                    const clone = document.createElement("script")
+                    for (const a of s.attributes) {
                       clone.setAttribute(a.name, a.value)
                     }
                     clone.text = s.text
                     await new Promise(resolve => {
-                      let listener = ev => {
+                      const listener = ev => {
                         if (ev.target !== clone) return
                         debug("Resolving on ", ev.type, ev.target)
                         resolve(ev.target)
-                        for (let et of doneEvents) removeEventListener(et, listener, true)
+                        for (const et of doneEvents)
+                          removeEventListener(et, listener, true)
                       }
-                      for (let et of doneEvents) {
+                      for (const et of doneEvents) {
                         addEventListener(et, listener, true)
                       }
                       s.replaceWith(clone)
@@ -128,7 +129,7 @@ export {}
     }
   }
 
-  let setup = policy => {
+  const setup = policy => {
     debug("Fetched %o, readyState %s", policy, document.readyState) // DEV_ONLY
     ns.setup(policy)
   }

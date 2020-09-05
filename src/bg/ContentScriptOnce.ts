@@ -1,26 +1,29 @@
 export {}
 
-var ContentScriptOnce = (() => {
-  let requestMap = new Map()
+const ContentScriptOnce = (() => {
+  const requestMap = new Map()
 
   {
-    let cleanup = r => {
-      let { requestId } = r
-      let scripts = requestMap.get(requestId)
+    const cleanup = r => {
+      const { requestId } = r
+      const scripts = requestMap.get(requestId)
       if (scripts) {
         window.setTimeout(() => {
           requestMap.delete(requestId)
-          for (let s of scripts) s.unregister()
+          for (const s of scripts) {
+            s.unregister()
+          }
         }, 0)
       }
     }
 
-    let filter = {
+    const filter = {
       urls: ["<all_urls>"],
       types: ["main_frame", "sub_frame", "object"],
     }
-    let wr = browser.webRequest
-    for (let event of ["onCompleted", "onErrorOccurred"]) {
+
+    const wr = browser.webRequest
+    for (const event of ["onCompleted", "onErrorOccurred"]) {
       wr[event].addListener(cleanup, filter)
     }
   }
@@ -31,13 +34,14 @@ var ContentScriptOnce = (() => {
       let scripts = requestMap.get(requestId)
       if (!scripts) requestMap.set(requestId, (scripts = new Set()))
       try {
-        let urlObj = new URL(url)
+        const urlObj = new URL(url)
         if (urlObj.port) {
           urlObj.port = ""
           url = urlObj.toString()
         }
-      } catch (e) {}
-      let defOpts = {
+      } catch {}
+
+      const defOpts = {
         runAt: "document_start",
         matchAboutBlank: true,
         matches: [url],
